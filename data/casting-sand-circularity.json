@@ -1,0 +1,30 @@
+{
+  "id": "casting-sand-circularity",
+  "title": "鋳物砂の循環（再生・廃棄・バインダー環境対応）",
+  "date": "2026-06-02",
+  "tree": "trees/casting-sand-circularity-tree.html",
+  "refs_page": "trees/references-casting-sand.html",
+  "tags": ["鋳鉄", "鋳物砂", "再生", "バインダー", "脱VOC", "無機バインダー", "サステナ"],
+  "summary": "鋳物砂の循環をどう成立させるか。第一階層6枝→3つの根底課題。中心矛盾＝成形時は強く結合↔注湯後は容易に分離・再生。",
+  "refined_root": "鋳鉄高温域(注湯>700℃〜1420℃)で作動する『完全無機の崩壊トリガ機構(bond/debond-on-demand)』を、強度・耐熱・耐湿・低エネ崩壊・界面清浄性を同時に満たす形で確立すること。環境対応で無機化すると“オフ側(崩壊・再生)”が未達になる矛盾が核。",
+  "deepest_root": "鉄の注湯1380–1420℃＋徐冷>700℃で、完全無機リン酸塩結合相を『崩壊側に凍結』できるか（過焼結/ビトリファイによる再固結＝debond→bond逆転を断てるか）。最有力候補＝AlPO4(融点~1800℃)骨格＋Mg/Zn犠牲カチオン。純Mg3(PO4)2は融点~1184℃<注湯ゆえ主相にできない。",
+  "path": ["根①: 高温無機 bond/debond-on-demand", "根②: 再生砂の表面活性を一次計測量として定義", "根③: 三重閉ループ統合（B寄り）"],
+  "quick_wins_B": [
+    {"transfer": "押湯トポロジー最適化＋断熱発熱スリーブ → 歩留+10%超", "from": "AM/構造設計"},
+    {"transfer": "自己熱再生(SHR)/高温ヒートポンプ乾燥 → 無機砂再生エネ~75%減圏", "from": "化学工学"},
+    {"transfer": "廃砂のジオポリマー化 → 構造材へ昇格＋重金属固定", "from": "フライアッシュ建材"},
+    {"transfer": "製薬PAT(NIR/Raman)で再生砂の化学組成インライン化", "from": "製薬"},
+    {"transfer": "三重閉ループ＝製紙クラフトパルプの苛性化/石灰サイクル(100年商用)が同型", "from": "製紙"}
+  ],
+  "nodes": [
+    {"lvl": "枝", "name": "1. 発生源削減（Reduce）", "cls": "mixed", "picked": false, "cross": ["AM:サポート材最小化/トポロジー最適化", "建設:型枠レス/プレキャスト", "半導体:犠牲層最小化"], "unsolved": ["充填/凝固/通気/崩壊/再生の5物理を一本に内挿した鋳造専用の犠牲材最小化拘束"], "sources": [{"t": "Tavakoli & Davami — Optimal riser design by topology optimization, Struct. Multidisc. Optim. 2009", "u": "", "v": "warn"}]},
+    {"lvl": "枝", "name": "2. 再生・回収（Recycle）", "cls": "mixed", "picked": false, "cross": ["製油:FCC触媒再生", "電池:黒鉛/正極の再生", "半導体:ウェハ洗浄・剥離", "精米/脱皮", "PET:脱ラベル再生"], "unsolved": ["無機×閉ループ×大量連続×経済性の交点", "剥がす側+剥がした物の三重閉ループ同時循環"], "sources": [{"t": "China Foundry (sand reclamation) DOI 10.1007/s41230-018-8165-4", "u": "https://doi.org/10.1007/s41230-018-8165-4", "v": "ok"}]},
+    {"lvl": "枝", "name": "3. バインダーの環境対応（脱VOC・無機化）", "cls": "mixed", "picked": false, "cross": ["電子実装:debond-on-demand接着", "歯科:グラスアイオノマー", "地盤:ジオポリマー", "食品:アルギン酸イオン架橋"], "unsolved": ["鉄系の可逆“オフ”＝中心矛盾の核（=根①）", "けい酸ゲルが鉄高温で焼失せず焼着・崩壊不良"], "sources": [{"t": "Gong et al., Ceramics International 2025 (phosphate sand cores)", "u": "https://doi.org/10.1016/j.ceramint.2025.08.350", "v": "ok"}, {"t": "ASK Chemicals, Inorganic binder systems in iron casting, CPT 03/2018", "u": "", "v": "warn"}]},
+    {"lvl": "枝", "name": "4. 廃砂の出口（Recover）", "cls": "A", "picked": false, "cross": ["フライアッシュ:セメント利用", "建設:再生骨材", "製鉄:スラグ利用", "汚染土:不溶化"], "unsolved": ["鉛入り黄銅/青銅系の長期再溶出管理"], "sources": [{"t": "US EPA-530-R-14-003 (beneficial use of foundry sand)", "u": "", "v": "ok"}, {"t": "US4408985 — 廃鋳物砂中有害物固定 (patent)", "u": "https://patents.google.com/patent/US4408985", "v": "ok"}]},
+    {"lvl": "枝", "name": "5. エネルギー・CO₂（省エネ）", "cls": "mixed", "picked": false, "cross": ["化学工学:自己熱再生(SHR)", "食品/製紙:ヒートポンプ乾燥", "製鉄/ガラス:排熱回収"], "unsolved": ["残留Na2Oを再加熱も多量水も使わず除く『低エネ de-bond+de-sodium』が未確立（=根①双子）"], "sources": [{"t": "Kansha et al. — Self-heat recuperation, ScienceDirect S037838201200241X", "u": "https://www.sciencedirect.com/science/article/abs/pii/S037838201200241X", "v": "ok"}]},
+    {"lvl": "枝", "name": "6. 計測・制御（DX）", "cls": "mixed", "picked": false, "cross": ["製薬:PAT(NIR/Raman)", "セメント:R3試験", "水処理:濁度オンライン", "食品:品質ソート"], "unsolved": ["再生砂の『表面活性』を一次計測量として定義し標準試験法・真値を確立（=根②）"], "sources": [{"t": "新東工業 US11976790B2 (ML-LOI推定で調砂制御, patent)", "u": "https://patents.google.com/patent/US11976790B2", "v": "ok"}, {"t": "RILEM TC267-TRM R3試験 (Materials and Structures 2022)", "u": "", "v": "ok"}]},
+    {"lvl": "根底課題", "name": "根①: 高温域で効く完全無機の崩壊トリガ機構 (bond/debond-on-demand)", "cls": "C", "picked": true, "cross": ["接着:debond-on-demand(無機翻案)", "歯科:グラスアイオノマー"], "unsolved": ["鉄徐冷下で脆化相のまま留まるか/再固結するか＝Fe実機データが世界に無い", "AlPO4骨格＋Mg/Zn犠牲カチオンで再固結を断てるか（Phase 0で確定）"], "sources": [{"t": "Gong et al., Ceramics International 2025", "u": "https://doi.org/10.1016/j.ceramint.2025.08.350", "v": "ok"}]},
+    {"lvl": "根底課題", "name": "根②: 再生砂の『表面活性』を一次計測量として定義・標準化", "cls": "C", "picked": false, "cross": ["セメント:R3試験法(真値化)", "製薬:PAT"], "unsolved": ["LOIはバルク代用で無機系では残らない＝“何を測るか”が未定義でDX系が宙に浮く"], "sources": [{"t": "RILEM TC267-TRM R3 / ASTM C1897", "u": "", "v": "ok"}]},
+    {"lvl": "根底課題", "name": "根③: 三重閉ループ（剥がす側＋剥がした物）を1物質収支で同時循環", "cls": "B", "picked": false, "cross": ["製紙:苛性化/石灰サイクル(Na-Ca-Si・100年商用)"], "unsolved": ["統合プラントの商用例・LCA/経済性実証が未確認（ただしB寄り＝移植元あり）"], "sources": [{"t": "苛性化/石灰サイクル US4668342A (patent)", "u": "https://patents.google.com/patent/US4668342A", "v": "ok"}]}
+  ]
+}

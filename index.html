@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>研究ナレッジベース</title>
+<style>
+  :root{
+    --ink:#1f2933;--muted:#65727f;--line:#d7dee6;--bg:#eef1f5;--card:#fff;--navy:#1f3a5f;
+    --a:#2e7d32;--a-bg:#e8f5e9;--a-bd:#a5d6a7;
+    --b:#1565c0;--b-bg:#e3f2fd;--b-bd:#90caf9;
+    --c:#c62828;--c-bg:#fdecea;--c-bd:#ef9a9a;
+    --mx:#e67e00;--mx-bg:#fff4e2;--mx-bd:#ffcc80;
+    --gold:#a6791f;--gold-bg:#fff8e1;--gold-bd:#e6c34d;--flag:#b23b00;--xind:#6a1b9a;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Meiryo","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;font-size:15px}
+  .top{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#fff,#fbfcfe);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(20,40,80,.07);padding:12px 20px}
+  .top h1{margin:0;font-size:20px;color:var(--navy)} .top .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .searchrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  #q{flex:1;min-width:240px;font-size:15px;padding:8px 13px;border:1px solid var(--line);border-radius:999px;outline:none}
+  #q:focus{border-color:#9fb0c3}
+  .chip{font-size:12.5px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;padding:5px 11px;border-radius:999px}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip.fa.on{background:var(--a);border-color:var(--a)} .chip.fb.on{background:var(--b);border-color:var(--b)}
+  .chip.fc.on{background:var(--c);border-color:var(--c)} .chip.fmx.on{background:var(--mx);border-color:var(--mx)}
+  .chip.fu.on{background:var(--flag);border-color:var(--flag)}
+  .count{font-size:12px;color:var(--muted)}
+  main{max-width:1120px;margin:0 auto;padding:18px 18px 80px}
+  .sectlabel{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.1em;margin:22px 0 10px 2px;text-transform:uppercase}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:0 3px 12px rgba(20,40,80,.05)}
+  .pcard h3{margin:0 0 4px;font-size:16px;color:var(--navy)}
+  .pcard .date{font-size:11.5px;color:var(--muted)}
+  .pcard .sum{font-size:12.5px;color:#46535f;margin:7px 0}
+  .deep{background:var(--c-bg);border:1px solid var(--c-bd);border-radius:9px;padding:7px 10px;font-size:11.5px;color:#7a1f1f;margin-top:6px}
+  .deep b{color:var(--c)}
+  .tallies{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .tally{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid}
+  .tally.a{color:var(--a);background:var(--a-bg);border-color:var(--a-bd)} .tally.b{color:var(--b);background:var(--b-bg);border-color:var(--b-bd)}
+  .tally.c{color:#fff;background:var(--c);border-color:var(--c)} .tally.mx{color:var(--mx);background:var(--mx-bg);border-color:var(--mx-bd)}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .tg{font-size:10.5px;color:var(--muted);background:#f1f4f8;border:1px solid var(--line);border-radius:999px;padding:1px 8px;cursor:pointer}
+  .pactions{display:flex;gap:8px;margin-top:11px}
+  .btn{font-size:12.5px;font-weight:700;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid}
+  .btn.tree{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .btn.refs{background:#fff;color:var(--navy);border-color:var(--line)}
+  /* results */
+  .res{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--mx);border-radius:11px;padding:10px 13px;margin:8px 0}
+  .res.a{border-left-color:var(--a)} .res.b{border-left-color:var(--b)} .res.c{border-left-color:var(--c)} .res.mixed{border-left-color:var(--mx)}
+  .res .rh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .res .rn{font-weight:700;font-size:14px} .res .rp{font-size:11.5px;color:var(--muted)}
+  .badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;border:1px solid;white-space:nowrap}
+  .badge.a{color:var(--a);background:var(--a-bg);border-color:var(--a-bd)} .badge.b{color:var(--b);background:var(--b-bg);border-color:var(--b-bd)}
+  .badge.c{color:#fff;background:var(--c);border-color:var(--c)} .badge.mixed{color:var(--mx);background:var(--mx-bg);border-color:var(--mx-bd)}
+  .xchip{display:inline-block;font-size:10.5px;background:#f5edfb;color:var(--xind);border:1px solid #ce93d8;border-radius:999px;padding:1px 7px;margin:3px 3px 0 0}
+  .uns{font-size:12px;color:#7a1f1f;margin-top:5px} .uns div{margin:2px 0}
+  .reflist .ref{font-size:11.5px;margin:3px 0}
+  .ref a{color:var(--b);text-decoration:none} .ref a:hover{text-decoration:underline}
+  .vb{font-size:9px;padding:0 5px;border-radius:999px;border:1px solid;margin-left:4px}
+  .vb.ok{color:var(--a);border-color:var(--a-bd);background:var(--a-bg)} .vb.gen{color:var(--b);border-color:var(--b-bd);background:var(--b-bg)} .vb.warn{color:var(--flag);border-color:var(--mx-bd);background:var(--mx-bg)}
+  .ptag{font-size:10px;color:var(--muted);background:#eef2f6;border-radius:999px;padding:0 6px;margin-left:5px}
+  .empty{color:var(--muted);font-size:13px;padding:10px}
+  footer{max-width:1120px;margin:0 auto;padding:0 18px 50px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>研究ナレッジベース</h1>
+  <div class="sub" id="sub">再帰分解×水平思考ワークフローの全研究を横断閲覧・検索 — 全項目「推定・要検証」</div>
+  <div class="searchrow">
+    <input id="q" type="search" placeholder="検索：キーワード / 異業種(例 製薬・AM) / DOI / 課題名 …">
+    <span class="chip filt on" data-f="all">すべて</span>
+    <span class="chip filt fa" data-f="A">A 既知</span>
+    <span class="chip filt fb" data-f="B">B 移植</span>
+    <span class="chip filt fc" data-f="C">C 未解決</span>
+    <span class="chip filt fmx" data-f="mixed">mixed</span>
+    <span class="chip fu" id="unsOnly">🔴 未解決のみ</span>
+    <span class="count" id="count"></span>
+  </div>
+</header>
+<main>
+  <section id="projwrap">
+    <div class="sectlabel">プロジェクト一覧</div>
+    <div class="pgrid" id="projects"></div>
+  </section>
+  <section id="reswrap" style="display:none">
+    <div class="sectlabel">検索結果：課題ノード</div>
+    <div id="results"></div>
+  </section>
+  <section>
+    <div class="sectlabel">全プロジェクト 参考文献ライブラリ（重複排除）</div>
+    <div class="reflist" id="biblio"></div>
+  </section>
+</main>
+<footer id="foot">研究ナレッジベース ｜ データは data/*.json（新しい研究は JSON を追加するだけで一覧へ）</footer>
+<script>
+const VB={ok:'✓実在',gen:'◯生成',warn:'⚠要確認'};
+let PROJECTS=[], NODES=[], SOURCES=[];
+let state={q:'',cls:'all',unsOnly:false};
+
+async function load(){
+  let idx;
+  try{
+    idx=await fetch('data/index.json').then(r=>r.json());
+    PROJECTS=await Promise.all(idx.projects.map(p=>fetch('data/'+p.file).then(r=>r.json())));
+  }catch(e){
+    document.getElementById('projects').innerHTML='<div class="empty">データ読込に失敗しました。<b>ローカルではサーバー経由で開いてください</b>（例：<code>py -3 -m http.server</code> → http://localhost:8000/）。GitHub Pages 等のURLでは正常に動きます。</div>';
+    return;
+  }
+  if(idx.subtitle) document.getElementById('sub').textContent=idx.subtitle+' — 全項目「推定・要検証」';
+  // flatten
+  PROJECTS.forEach(p=>{
+    (p.nodes||[]).forEach(n=>NODES.push({proj:p.id,projTitle:p.title,tree:p.tree,lvl:n.lvl,name:n.name,cls:n.cls||'mixed',cross:n.cross||[],unsolved:n.unsolved||[],sources:n.sources||[]}));
+    (p.nodes||[]).forEach(n=>(n.sources||[]).forEach(s=>addSource(s,p)));
+  });
+  renderProjects(); renderBiblio(); applyFilter();
+}
+function addSource(s,p){
+  if(!s||!s.t) return;
+  const key=(s.u||s.t).toLowerCase();
+  let ex=SOURCES.find(x=>x.key===key);
+  if(!ex){ ex={key,t:s.t,u:s.u||'',v:s.v||'ok',projs:new Set()}; SOURCES.push(ex); }
+  ex.projs.add(p.title);
+}
+function tallies(p){ const t={A:0,B:0,C:0,mixed:0}; (p.nodes||[]).forEach(n=>{t[n.cls]=(t[n.cls]||0)+1;}); return t; }
+function clsBadge(c){ return '<span class="badge '+c+'">'+(c==='mixed'?'mixed':c)+'</span>'; }
+
+function renderProjects(){
+  document.getElementById('projects').innerHTML=PROJECTS.map(p=>{
+    const t=tallies(p);
+    const tl=['A','B','C','mixed'].filter(k=>t[k]).map(k=>'<span class="tally '+(k==='mixed'?'mx':k.toLowerCase())+'">'+(k==='mixed'?'mixed':k)+' '+t[k]+'</span>').join('');
+    const tags=(p.tags||[]).map(x=>'<span class="tg" onclick="setQ(\''+x+'\')">'+x+'</span>').join('');
+    const refs=p.refs_page?'<a class="btn refs" href="'+p.refs_page+'" target="_blank">参考文献</a>':'';
+    return '<div class="pcard"><h3>'+p.title+'</h3><div class="date">'+(p.date||'')+' ｜ ノード '+((p.nodes||[]).length)+'</div>'
+      +'<div class="sum">'+(p.summary||'')+'</div>'
+      +'<div class="deep"><b>🎯最深root：</b>'+((p.deepest_root||'').slice(0,150))+'…</div>'
+      +'<div class="tallies">'+tl+'</div><div class="tags">'+tags+'</div>'
+      +'<div class="pactions"><a class="btn tree" href="'+p.tree+'" target="_blank">🌳 ツリーを開く</a>'+refs+'</div></div>';
+  }).join('');
+}
+function renderBiblio(){
+  const list=filteredSources();
+  document.getElementById('biblio').innerHTML=list.length?list.map(s=>{
+    const v='<span class="vb '+(s.v||'ok')+'">'+(VB[s.v]||'')+'</span>';
+    const pj=[...s.projs].map(x=>'<span class="ptag">'+x.slice(0,10)+'</span>').join('');
+    return '<div class="ref">'+(s.u?'<a href="'+s.u+'" target="_blank">'+s.t+'</a>':s.t)+v+pj+'</div>';
+  }).join(''):'<div class="empty">該当なし</div>';
+}
+function matchNode(n){
+  if(state.cls!=='all' && n.cls!==state.cls) return false;
+  if(state.unsOnly && (!n.unsolved||!n.unsolved.length)) return false;
+  if(!state.q) return true;
+  const hay=(n.name+' '+n.cross.join(' ')+' '+n.unsolved.join(' ')+' '+n.sources.map(s=>s.t).join(' ')+' '+n.projTitle).toLowerCase();
+  return state.q.split(/\s+/).every(w=>hay.includes(w));
+}
+function filteredSources(){
+  if(!state.q) return SOURCES;
+  return SOURCES.filter(s=>{const h=(s.t+' '+[...s.projs].join(' ')).toLowerCase();return state.q.split(/\s+/).every(w=>h.includes(w));});
+}
+function applyFilter(){
+  const searching = state.q || state.cls!=='all' || state.unsOnly;
+  const res=NODES.filter(matchNode);
+  document.getElementById('count').textContent = res.length+' 課題 / '+filteredSources().length+' 文献';
+  const rw=document.getElementById('reswrap');
+  document.getElementById('projwrap').style.display = searching?'none':'';
+  rw.style.display = searching?'':'none';
+  if(searching){
+    document.getElementById('results').innerHTML = res.length?res.map(n=>{
+      const cross=n.cross.map(c=>'<span class="xchip">★'+c+'</span>').join('');
+      const uns=n.unsolved.length?'<div class="uns">'+n.unsolved.map(u=>'<div>🔴 '+u+'</div>').join('')+'</div>':'';
+      const refs=n.sources.length?'<div class="reflist" style="margin-top:5px">'+n.sources.map(s=>'<div class="ref">'+(s.u?'<a href="'+s.u+'" target="_blank">'+s.t+'</a>':s.t)+'<span class="vb '+(s.v||'ok')+'">'+(VB[s.v]||'')+'</span></div>').join('')+'</div>':'';
+      return '<div class="res '+n.cls+'"><div class="rh"><span class="rn">'+n.name+'</span>'+clsBadge(n.cls)+'<span class="rp">'+n.lvl+' ｜ <a href="'+n.tree+'" target="_blank">'+n.projTitle+'</a></span></div>'+cross+uns+refs+'</div>';
+    }).join(''):'<div class="empty">該当する課題がありません。</div>';
+  }
+  renderBiblio();
+}
+function setQ(v){ document.getElementById('q').value=v; state.q=v.toLowerCase(); applyFilter(); window.scrollTo(0,0); }
+document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value.trim().toLowerCase();applyFilter();});
+document.querySelectorAll('.chip.filt').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip.filt').forEach(x=>x.classList.remove('on')); c.classList.add('on'); state.cls=c.dataset.f; applyFilter();
+}));
+document.getElementById('unsOnly').addEventListener('click',function(){ this.classList.toggle('on'); state.unsOnly=this.classList.contains('on'); applyFilter(); });
+load();
+</script>
+</body>
+</html>

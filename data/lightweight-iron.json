@@ -1,0 +1,30 @@
+{
+  "id": "lightweight-iron",
+  "title": "鋳鉄部品の軽量化（薄肉×中空×高強度）",
+  "date": "2026-06-03",
+  "tree": "trees/lightweight-tree-v2.html",
+  "tags": ["鋳鉄", "軽量化", "薄肉", "中空", "ダクタイル鋳鉄", "ICME"],
+  "summary": "薄肉(2–4mm)ダクタイル鋳鉄で内部多孔質を保ちつつ高強度・疲労耐性を両立する。3層掘ると ICME/相図ギャップに帰着。",
+  "refined_root": "薄肉(2–4mm)ダクタイル鋳鉄で、意図的内部多孔質を保ちつつ引張300MPa超・疲労耐性を同時達成するには、凝固中の Fe-C-Si-Mo 炭化物析出抑制・CET(柱状→等軸)転移制御・黒鉛核生成密度の三変数を薄肉冷却速度(50–500K/s)下でいかに統合設計するか。",
+  "deepest_root": "Fe-C-Si-Mo 四元系で、50–100MPa の静水圧(スクイーズ鋳造)と薄肉冷却速度の重畳下に M₇C₃・M₃C 炭化物の析出ロカスがどう動くかを定量化した相図データが無い。圧力増大は炭化物を抑制でなく促進しうる。Si×Mo の非線形競合係数も未確立。",
+  "path": ["薄肉部のための冷却制御・結晶粒微細化", "急速凝固の組織形成", "高圧スクイーズ鋳造下の炭化物析出抑制 × Si/Mo非線形相互作用"],
+  "quick_wins_B": [
+    {"transfer": "MuCell超臨界CO₂発泡の気泡核生成 → 鋳鉄内部に均一気孔(10–100µm)", "from": "射出成形"},
+    {"transfer": "等応力線トポロジー最適化＋格子生成 → ロストワックス中子で24–52%軽量", "from": "航空/構造AM"},
+    {"transfer": "TPMS格子(Gyroid)の主応力方向マッチング → 中空コア形状の雛形", "from": "生体インプラント"},
+    {"transfer": "電磁攪拌(M-EMS)の柱状→等軸転移(CET)誘起 → 等軸黒鉛組織", "from": "連続鋳造/鉄鋼"}
+  ],
+  "nodes": [
+    {"lvl": "L1", "name": "内部多孔質の制御生成", "cls": "mixed", "picked": false, "cross": ["射出成形:MuCell発泡", "粉末冶金:中空Fe-N焼結"], "unsolved": ["薄肉(2–4mm)で40%超の気孔率でも延性・等方性・疲労を保ち組織を制御"], "sources": [{"t": "PBF-LB Process-Induced Regular Cavities (AlSi10Mg)", "u": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8587216/", "v": "ok"}, {"t": "A Review on Porosity Formation in Aluminum-Based Alloys", "u": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10004325/", "v": "ok"}]},
+    {"lvl": "L1", "name": "荷重経路に沿った計算幾何・格子最適化", "cls": "mixed", "picked": false, "cross": ["航空/AM:トポロジー最適化", "生体:TPMS格子"], "unsolved": ["細い柱(0.5–1mm)・高冷却速度での鉄の炭化物形成", "AM(SLM) vs 重力鋳造の経済性"], "sources": [{"t": "Design and Topology Optimization of Lattice Structures (AM)", "u": "https://www.researchgate.net/publication/314613885", "v": "ok"}, {"t": "Review of AM and topology optimization for weight reduction", "u": "https://www.sciencedirect.com/science/article/abs/pii/S2214785322010525", "v": "ok"}]},
+    {"lvl": "L1", "name": "薄肉部のための冷却制御・結晶粒微細化", "cls": "mixed", "picked": true, "cross": ["スクイーズ鋳造", "連鋳:電磁攪拌(M-EMS)", "AM:ナノ粒子核生成"], "unsolved": ["スクイーズ鋳造と複合inoculantの鉄での同時活用実績が極少", "RMF凝固がFe磁性鋳鉄で等軸転移を起こす条件の定量モデル未確立"], "sources": [{"t": "Production and properties of thin-wall ductile iron castings", "u": "https://www.researchgate.net/publication/311165730", "v": "ok"}, {"t": "Effects of Inoculation on High-Si Ductile Iron, Thin Wall", "u": "https://www.mdpi.com/2075-4701/10/8/1091", "v": "ok"}]},
+    {"lvl": "L1", "name": "異材複合・補剛材の埋め込み", "cls": "mixed", "picked": false, "cross": ["自動車:サンドイッチ複合", "セラミック挿入"], "unsolved": ["埋込時の気孔/層間剥離回避", "材料ペアリング(セラミック×延性挿入相)"], "sources": [{"t": "Sandwich-type structural composite component (patent)", "u": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/8808830", "v": "ok"}]},
+    {"lvl": "L1", "name": "鋳造プロセス選定・量産可否ゲート", "cls": "mixed", "picked": false, "cross": ["スクイーズ鋳造", "SLM鉄"], "unsolved": ["FLOW-3D/Magmasoft↔トポロジー最適化の自動フィードバック", "SLM鉄の内部空洞欠陥と内壁の相関"], "sources": [{"t": "A review of topology optimization for AM", "u": "https://doi.org/10.1016/j.cja.2020.09.020", "v": "ok"}]},
+    {"lvl": "L2", "name": "急速凝固の組織形成", "cls": "mixed", "picked": true, "cross": ["RMF磁場攪拌", "スクイーズ/チル鋳造"], "unsolved": ["薄肉充填中の過渡的過冷却波形の最適設計", "高圧スクイーズ下の炭化物析出抑止とSi/Mo添加の非線形相互作用"], "sources": [{"t": "Effect of Cooling Rate on Thin-Walled Ductile Iron Castings", "u": "https://link.springer.com/article/10.1007/s11665-012-0233-0", "v": "ok"}, {"t": "US7735544B2 — Electromagnetic stirring for continuous casting", "u": "https://patents.google.com/patent/US7735544B2/en", "v": "ok"}]},
+    {"lvl": "L2", "name": "核生成駆動の結晶粒微細化", "cls": "mixed", "picked": false, "cross": ["AM:ナノ粒子核生成"], "unsolved": ["多元素イノキュラント(Ca-Ba-RE+Bi/Co)の界面コヒーレンス活性化の定量化", "薄肉(肉厚→0)での冷却速度限界の工業スケール検証"], "sources": [{"t": "Towards understanding grain nucleation under AM conditions", "u": "https://www.sciencedirect.com/science/article/abs/pii/S1359645420303517", "v": "ok"}]},
+    {"lvl": "L2", "name": "意図的多孔質アーキテクチャの維持", "cls": "mixed", "picked": false, "cross": ["航空/自動車:階層格子"], "unsolved": ["鋳造での格子保持と凝固の両立"], "sources": [{"t": "Dendrite fragmentation by massive-like δ–γ transformation (Fe–C)", "u": "https://www.nature.com/articles/s41467-019-11079-y", "v": "ok"}]},
+    {"lvl": "L3", "name": "過渡充填ダイナミクス × 過冷却波形の同期", "cls": "mixed", "picked": false, "cross": ["超音波キャビテーション", "マイクロ流体", "単結晶育成(Czochralski)"], "unsolved": ["薄肉中空での圧力パルスと過冷却ピークの位相ロック精度(±0.1–1ms)", "キャビテーション崩壊時の動的過冷却量の予測モデル欠如"], "sources": [{"t": "Ultrafine Ductile/ADI by Solidification in Ultrasonic Field", "u": "https://link.springer.com/article/10.1007/s40962-021-00683-8", "v": "ok"}, {"t": "Controllable droplet breakup in microfluidics (hydrostatic pressure)", "u": "https://www.sciencedirect.com/science/article/abs/pii/S0009250920303882", "v": "gen"}]},
+    {"lvl": "L3", "name": "高圧スクイーズ鋳造下の炭化物析出抑制 × Si/Mo非線形相互作用", "cls": "mixed", "picked": true, "cross": ["スクイーズ鋳造(静水圧)"], "unsolved": ["M₇C₃+M₃C体積分率を最小化するFe-Si-Mo組成窓", "50MPa静水圧がFe-C-Si-Mo系に与える相図シフトの定量化（=最深root）"], "sources": [{"t": "Microstructure & Abrasive Wear of Medium Alloy SiMo Ductile Iron", "u": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10934996/", "v": "ok"}, {"t": "Effect of Mo Contents on High-Temp Wear of SiMo Ductile Iron", "u": "https://link.springer.com/article/10.1007/s40962-023-01012-x", "v": "ok"}]},
+    {"lvl": "L3", "name": "格子充填凝固 ＋ 柱状→等軸転移(CET)の温度勾配最適化", "cls": "mixed", "picked": false, "cross": ["連鋳:電磁攪拌(CET)", "勾配格子"], "unsolved": ["格子セルサイズ(10–500µm)と冷却速度・柱状成長の連成最適", "ストラット厚公差×気孔率がデンドライト相互作用に与える影響"], "sources": [{"t": "Effect of Cooling Rate on Thin-Walled Ductile Iron Castings", "u": "https://doi.org/10.1007/s11665-012-0233-0", "v": "ok"}, {"t": "Lightweight gradient lattice structures in AM", "u": "https://doi.org/10.1177/1687814020916951", "v": "ok"}]}
+  ]
+}

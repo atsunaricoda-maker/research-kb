@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>鋳物砂の循環 — 研究課題ツリー（本末ビュー）</title>
+<style>
+  :root{
+    --ink:#1f2933; --muted:#65727f; --line:#d7dee6; --bg:#eef1f5; --card:#ffffff;
+    --a:#2e7d32; --a-bg:#e8f5e9; --a-bd:#a5d6a7;
+    --b:#1565c0; --b-bg:#e3f2fd; --b-bd:#90caf9;
+    --c:#c62828; --c-bg:#fdecea; --c-bd:#ef9a9a;
+    --mx:#e67e00; --mx-bg:#fff4e2; --mx-bd:#ffcc80;
+    --root:#a6791f; --root-bg:#fff8e1; --root-bd:#e6c34d;
+    --flag:#b23b00;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.6; font-size:15px;
+  }
+  a{color:var(--b)}
+  .top{
+    position:sticky; top:0; z-index:50; background:linear-gradient(180deg,#fff, #fbfcfe);
+    border-bottom:1px solid var(--line); box-shadow:0 2px 10px rgba(20,40,80,.06);
+    padding:10px 18px;
+  }
+  .top h1{margin:0; font-size:18px; letter-spacing:.02em}
+  .top .meta{color:var(--muted); font-size:12.5px; margin-top:2px}
+  .toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:9px}
+  .toolbar .sep{width:1px; height:22px; background:var(--line); margin:0 4px}
+  button.tb{
+    border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer;
+    padding:5px 11px; border-radius:999px; font-size:12.5px; transition:.15s;
+  }
+  button.tb:hover{border-color:#9fb0c3}
+  button.tb.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+  button.f-a.on{background:var(--a);border-color:var(--a)}
+  button.f-b.on{background:var(--b);border-color:var(--b)}
+  button.f-c.on{background:var(--c);border-color:var(--c)}
+  button.f-flag.on{background:var(--flag);border-color:var(--flag)}
+  .legend{display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:8px}
+  .legend span{display:inline-flex; align-items:center; gap:5px}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+  .dot.a{background:var(--a-bg);border-color:var(--a-bd)} .dot.b{background:var(--b-bg);border-color:var(--b-bd)}
+  .dot.c{background:var(--c-bg);border-color:var(--c-bd)} .dot.mx{background:var(--mx-bg);border-color:var(--mx-bd)}
+  .dot.root{background:var(--root-bg);border-color:var(--root-bd)}
+
+  main{max-width:1180px; margin:0 auto; padding:20px 18px 60px}
+  section{margin-bottom:26px}
+  .sectlabel{font-size:12.5px; font-weight:700; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin:0 0 10px 2px}
+
+  /* ROOT anchor */
+  .rootq{
+    background:linear-gradient(135deg,#fffdf4,#fff8e1); border:2px solid var(--root-bd);
+    border-radius:16px; padding:18px 20px; box-shadow:0 6px 20px rgba(150,110,20,.10);
+  }
+  .rootq .tag{display:inline-block; background:var(--root); color:#fff; font-size:12px; font-weight:700;
+    padding:3px 10px; border-radius:999px; letter-spacing:.06em}
+  .rootq h2{margin:9px 0 4px; font-size:20px}
+  .contradiction{background:#fff; border:1px solid var(--c-bd); border-left:5px solid var(--c);
+    border-radius:12px; padding:13px 15px; margin-top:13px}
+  .contradiction .core{font-weight:600}
+  .contradiction ul{margin:10px 0 0; padding-left:18px}
+  .contradiction li{margin:4px 0}
+  .swing{color:var(--c); font-weight:700}
+
+  /* ROOT problems = 本 */
+  .honnote{background:#fff3cd; border:1px dashed #e6c34d; color:#6b5310; border-radius:10px;
+    padding:9px 13px; font-size:13.5px; margin-bottom:12px}
+  .roots{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px}
+  .rootcard{background:var(--root-bg); border:2px solid var(--root-bd); border-radius:14px; padding:15px 16px;
+    position:relative; box-shadow:0 4px 14px rgba(150,110,20,.08)}
+  .rootcard .num{font-size:30px; font-weight:800; color:var(--root); line-height:1; float:left; margin:-2px 12px 4px 0}
+  .rootcard h3{margin:0 0 6px; font-size:15.5px}
+  .rootcard .why{font-size:13px; color:#4a4534; clear:both; margin-top:6px}
+  .feeds{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px}
+  .feedchip{font-size:11.5px; background:#fff; border:1px solid var(--root-bd); color:var(--root);
+    padding:2px 8px; border-radius:999px; font-weight:600}
+
+  /* convergence */
+  .conv{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
+  .convcol{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px}
+  .convcol .head{font-weight:700; color:var(--root); display:flex; align-items:center; gap:7px; margin-bottom:8px}
+  .convcol .head .b{background:var(--root); color:#fff; border-radius:8px; padding:1px 8px; font-size:13px}
+  .flowrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:6px 0}
+  .src{display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap}
+  .arrow{color:var(--muted); font-weight:700}
+  .bchip{font-size:12px; padding:3px 9px; border-radius:8px; border:1px solid; font-weight:600}
+  .bchip.c{background:var(--c-bg);border-color:var(--c-bd);color:var(--c)}
+  .bchip.mx{background:var(--mx-bg);border-color:var(--mx-bd);color:var(--mx)}
+  .bchip.a{background:var(--a-bg);border-color:var(--a-bd);color:var(--a)}
+  .subordinate{grid-column:1/-1; background:#f7f9fb; border:1px dashed var(--line); border-radius:10px;
+    padding:9px 13px; color:var(--muted); font-size:13px}
+
+  /* tree */
+  .treetop{display:flex; flex-direction:column; align-items:center; margin-bottom:2px}
+  .rootmini{background:var(--root); color:#fff; font-weight:700; padding:7px 16px; border-radius:10px; font-size:14px}
+  .stem{width:2px; height:18px; background:var(--line)}
+  .branches{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px}
+  .branch{background:var(--card); border:1px solid var(--line); border-radius:13px; overflow:hidden;
+    border-left:6px solid var(--line); transition:.15s}
+  .branch.t-a{border-left-color:var(--a)} .branch.t-b{border-left-color:var(--b)}
+  .branch.t-c{border-left-color:var(--c)} .branch.t-mx{border-left-color:var(--mx)}
+  .branch .bhead{display:flex; gap:10px; align-items:flex-start; padding:13px 14px; cursor:pointer; user-select:none}
+  .branch .bhead:hover{background:#f8fafc}
+  .nodeid{flex:none; width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:#fff; font-size:14px}
+  .t-a .nodeid{background:var(--a)} .t-b .nodeid{background:var(--b)} .t-c .nodeid{background:var(--c)} .t-mx .nodeid{background:var(--mx)}
+  .bhead .htext{flex:1; min-width:0}
+  .bhead .name{font-weight:700; font-size:15px}
+  .bhead .abs{color:var(--muted); font-size:12.5px; margin-top:2px}
+  .badges{display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; align-items:center}
+  .badge{font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid}
+  .badge.cls{background:#fff}
+  .t-a .badge.cls{color:var(--a);border-color:var(--a-bd)} .t-b .badge.cls{color:var(--b);border-color:var(--b-bd)}
+  .t-c .badge.cls{color:var(--c);border-color:var(--c-bd)} .t-mx .badge.cls{color:var(--mx);border-color:var(--mx-bd)}
+  .badge.feed{background:var(--root-bg);color:var(--root);border-color:var(--root-bd)}
+  .caret{flex:none; color:var(--muted); transition:.2s; font-size:13px; margin-top:4px}
+  .branch.open .caret{transform:rotate(90deg)}
+  .branch .body{display:none; padding:0 14px 14px 14px; border-top:1px solid var(--line)}
+  .branch.open .body{display:block}
+  .group{margin-top:12px}
+  .group .glabel{font-size:12px; font-weight:800; letter-spacing:.04em; display:flex; align-items:center; gap:6px; margin-bottom:6px}
+  .group.k-a .glabel{color:var(--a)} .group.k-b .glabel{color:var(--b)} .group.k-c .glabel{color:var(--c)} .group.k-meta .glabel{color:var(--muted)}
+  .item{font-size:13.3px; padding:7px 10px; border-radius:8px; margin:5px 0; border:1px solid transparent}
+  .group.k-a .item{background:var(--a-bg)} .group.k-b .item{background:var(--b-bg)} .group.k-c .item{background:var(--c-bg)}
+  .group.k-meta .item{background:#f6f8fa; color:#46535f; font-size:12.5px}
+  .item .tlevel{font-size:11px; font-weight:700; color:var(--b); margin-left:6px; white-space:nowrap}
+  .item.star{background:linear-gradient(135deg,#fff,#fff3e0); border-color:var(--mx-bd)}
+  .flag{color:var(--flag); font-weight:700}
+  .item[data-flag="1"]{box-shadow:inset 3px 0 0 var(--flag)}
+
+  footer{max-width:1180px; margin:0 auto; padding:0 18px 50px; color:var(--muted); font-size:12.5px}
+  footer code{background:#e7ecf2; padding:1px 6px; border-radius:5px}
+  body.honmatsu .conv, body.honmatsu #tree, body.honmatsu .legend{display:none}
+  @media print{ .top{position:static} button.tb{display:none} .branch .body{display:block!important} .caret{display:none} }
+
+  /* ===== view switching ===== */
+  .view-v #hview{display:none}
+  .view-h #root,.view-h #roots,.view-h #conv,.view-h #tree{display:none}
+  .view-h .filters,.view-h #honBtn{display:none}
+  /* ===== horizontal tree ===== */
+  #hview .hroots{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 14px}
+  .hrootchip{background:var(--root-bg);border:1.5px solid var(--root-bd);color:#6b5310;border-radius:10px;padding:6px 12px;font-size:12.5px}
+  .hrootchip b{color:var(--root);font-size:15px;margin-right:5px}
+  .hscroll{overflow:auto;max-height:80vh;border:1px solid var(--line);border-radius:14px;padding:26px 30px;
+    background:radial-gradient(circle at 1px 1px,#dde5ee 1px,transparent 0) 0 0/22px 22px,#fbfcfe}
+  .hcontent{position:relative;width:max-content;min-width:100%}
+  .hedges{position:absolute;top:0;left:0;pointer-events:none;z-index:0;overflow:visible}
+  .hlayout{position:relative;z-index:1;display:flex;align-items:flex-start;gap:66px}
+  .hroot{flex:none;background:linear-gradient(135deg,#fffdf4,#fff3cf);border:2px solid var(--root-bd);
+    border-radius:14px;padding:14px 18px;box-shadow:0 6px 18px rgba(150,110,20,.12);text-align:center;position:sticky;top:16px;z-index:2;align-self:flex-start}
+  .hroot-tag{display:inline-block;background:var(--root);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;margin-bottom:7px}
+  .hroot-q{font-weight:800;font-size:16px;line-height:1.4}
+  .hbranches{flex:none;display:flex;flex-direction:column;gap:16px}
+  .hsub{display:flex;align-items:center;gap:56px}
+  .hbnode{flex:none;width:300px;display:flex;gap:10px;align-items:flex-start;background:var(--card);
+    border:1px solid var(--line);border-left:6px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s}
+  .hbnode:hover{box-shadow:0 3px 12px rgba(20,40,80,.12)}
+  .t-a .hbnode{border-left-color:var(--a)}.t-b .hbnode{border-left-color:var(--b)}
+  .t-c .hbnode{border-left-color:var(--c)}.t-mx .hbnode{border-left-color:var(--mx)}
+  .hbnode .hbtext{flex:1;min-width:0}
+  .hbnode .name{font-weight:700;font-size:14px}
+  .hbnode .badges{margin-top:6px}
+  .hbnode .caret{color:var(--muted);transition:.2s;font-size:12px;margin-top:3px}
+  .hsub.open .hbnode .caret{transform:rotate(90deg)}
+  .hkids{flex:none;display:flex;flex-direction:column;gap:7px;max-width:560px}
+  .hsub:not(.open) .hkids{display:none}
+  .hkid{font-size:12.5px;border:1px solid;border-radius:9px;padding:6px 10px;cursor:pointer;background:#fff;line-height:1.5}
+  .hkid.k-a{border-color:var(--a-bd);background:var(--a-bg)}
+  .hkid.k-b{border-color:var(--b-bd);background:var(--b-bg)}
+  .hkid.k-c{border-color:var(--c-bd);background:var(--c-bg)}
+  .hkid.star{background:linear-gradient(135deg,#fff,#fff3e0);border-color:var(--mx-bd)}
+  .hkid.flagk{box-shadow:inset 3px 0 0 var(--flag)}
+  .hkid .full{display:none;margin-top:4px}
+  .hkid.exp .lab{display:none}.hkid.exp .full{display:block}
+  .hkid .tlevel{color:var(--b);font-weight:700;font-size:11px}
+  @media (max-width:760px){.hbnode{width:210px}.hlayout{gap:34px}.hsub{gap:28px}.hkids{max-width:60vw}}
+</style>
+</head>
+<body class="view-v">
+<header class="top">
+  <h1>鋳物砂の循環 — 研究課題ツリー <span style="color:var(--muted);font-weight:500;font-size:14px">本末ビュー</span></h1>
+  <div class="meta">根＝「鋳物砂の循環をどう成立させるか」／第一階層6枝 二層探索（同業×異業種）→ A/B/C分類 → 再帰 → 反証検証｜19エージェント・実Web375回｜2026-06-02</div>
+  <div class="toolbar">
+    <button class="tb on" id="viewV">縦：本末</button>
+    <button class="tb" id="viewH">横：ツリー</button>
+    <span class="sep"></span>
+    <button class="tb" id="honBtn">🎯 本末モード</button>
+    <button class="tb" id="expAll">すべて展開</button>
+    <button class="tb" id="colAll">すべて畳む</button>
+    <span class="filters">
+      <span class="sep"></span>
+      <span style="font-size:12px;color:var(--muted)">フィルタ:</span>
+      <button class="tb on" data-f="all">すべて</button>
+      <button class="tb f-a" data-f="a">A 既知</button>
+      <button class="tb f-b" data-f="b">★B 移植</button>
+      <button class="tb f-c" data-f="c">C 未解決</button>
+      <button class="tb f-flag" data-f="flag">⚠ 要検証</button>
+    </span>
+  </div>
+  <div class="legend">
+    <span><i class="dot root"></i>本＝根の課題</span>
+    <span><i class="dot a"></i>A 同業で既に解決（既知）</span>
+    <span><i class="dot b"></i>★B 異業種で解決＝移植候補</span>
+    <span><i class="dot c"></i>C どこにも無い真の未解決</span>
+    <span><i class="dot mx"></i>mixed 側面で割れる</span>
+    <span><span class="flag">⚠</span> 検証で格下げ/要再確認</span>
+  </div>
+</header>
+
+<main>
+  <section id="root"></section>
+  <section id="roots"></section>
+  <section id="conv"></section>
+  <section id="tree"></section>
+  <section id="hview"></section>
+</main>
+<footer>
+  生成元: マルチエージェント二層探索ワークフロー（Run wf_d3648d78-b1f）。データはこのファイルに埋め込み済み。詳細テキスト版は <code>casting-sand-circularity-tree.md</code>。
+  <br>⚠ 印は反証検証で数値/出典の格下げがあった項目。<b>開発部向け提案書にする前に⚠の一次出典を再確認</b>してください。これは検討用プロトタイプ（本導入は未判断）。
+</footer>
+
+<script>
+const DATA = {
+  question: `鋳物砂の循環（再生・廃棄・バインダー環境対応）をどう成立させるか`,
+  contradiction: {
+    core: `鋳鉄/鋳鋼の高温域（注湯1400℃級・徐冷>700℃）で作動する「オンデマンド可逆な無機接着（bond / debond-on-demand）」を、成形強度（2–4MPa）・耐熱・耐湿 ↔ 注湯後の残留強度ゼロ・界面の清浄剥離・砂回収性 を同時に満たす形で、有機添加・再焼成・多量水なしに無機骨格内へ「崩壊トリガ機構」として内蔵すること。`,
+    points: [
+      `有機樹脂は400–700℃で熱分解し<b>自然に崩壊（=A 既解決）</b> <span class="swing">↔</span> 環境対応で無機化するとけい酸ゲルが焼失せず徐冷で<b>逆に固着</b>し“オフ側”が未達。`,
+      `矛盾は形状側(枝1)・出口側(枝4)の<b>上流</b>にあり、<b>材料（バインダー）側が根</b>。一度解いても『再生工程』へ派生移動（枝2,5）。`,
+      `アルミ・非鉄域では事実上<b>解決済み(A)</b> <span class="swing">↔</span> 鋳鉄ドメインは<b>series-ready未確立（mixed寄りC）</b>。`
+    ]
+  },
+  roots: [
+    { n:"①", title:"高温域で効く「完全無機の崩壊トリガ機構」(bond / debond-on-demand)",
+      feeds:["枝3 バインダー","枝5 エネルギー"],
+      why:`最深の根。環境対応（無機化）そのものが再生性を壊す矛盾の核。有機=熱分解でタダで崩れる(A) ↔ 無機=焼失せず固着(C)。アルミは解決済(A)・鉄はseries-ready無し。最有力の種＝<b>リン酸塩系の温度依存・崩壊相制御</b>（Gong et al., Ceramics Int. 2025）。発想源＝歯科グラスアイオノマー／接着剤debond-on-demandの無機翻案。` },
+    { n:"②", title:"再生砂の「表面活性」を一次計測量として定義し、標準試験法・真値(ground truth)を確立",
+      feeds:["枝6 計測・制御"],
+      why:`計測の根。LOI/水分はバルク代用で、無機系では残りすらしない。<b>“何を測るか”が未定義</b>ゆえDX系課題が全部宙に浮く。セメント界のR3試験（ASTM C1897／複数候補から一次量選定＋ラウンドロビンで真値化）が方法論の移植源。` },
+    { n:"③", title:"剥がす側(再生砂)＋剥がした物(微粉・Na塩・排水)を1物質収支で同時循環させる三重閉ループ統合",
+      feeds:["枝2 再生・回収"],
+      why:`統合の根。ただし<b>B寄り</b>＝製紙クラフトパルプの苛性化/石灰サイクル（Na-Ca-Si化学が同型・US4668342A・100年商用）という移植元が実在。根①が解ければ剥がす物の量・有害度が桁で下がり大幅に容易化する従属層。` }
+  ],
+  branches: [
+    { id:"1", tone:"mx", name:"発生源削減（Reduce）", badge:"mixed（A寄り）", feed:"従属（新規Cは自枝の統一拘束）",
+      abs:"目的形状を得るための使い捨て型材/犠牲材の量を最小化",
+      A:[`押湯・湯道（最大の犠牲材）の削減は確立。断熱発熱スリーブで押湯重量減・歩留+10%超 <span class="flag">⚠『56%減』は単一査読出典に未紐付け＝代表値</span>`,
+         `トポロジー最適化(TO)は<b>既に鋳造の押湯/フィーダ設計へ移植・実証済み</b>（Tavakoli & Davami 2009 ほか）＝この軸はAに到達`],
+      B:[["AMの自己支持角制約付きTO／サポート体積最小化（5–54%削減）","高"],
+         ["骨型ラティス（応力駆動プルーニング・biomimicry）","—"],
+         ["建設の型枠レス/中空化・3Dプリント砂型の中空リブ化（部分実装済）","—"]],
+      C:[`量産green sandで形状自由度なしに砂体積を体系的に最小化する統合手法`,
+         `湯量削減 ↔ 中子（別の犠牲材）増加 のトレードオフ一括最適化`,
+         `★真の新規C：AMの自己支持角θ_sに等価な、<b>充填/凝固/通気/崩壊/再生の5物理を一本に内挿した鋳造専用の犠牲材最小化拘束</b>`],
+      sources:`瓢屋サポイン報告; Tavakoli & Davami, Struct Multidisc Optim 2009; voxeljet; Gaynor & Guest 2016 <span class="flag">⚠DOI混同注意(Garaigordobil 2018)</span>`,
+      verify:`分類=妥当（A寄りmixedと明示推奨）。捏造URLなし。新規性主張はlevel-2の統一拘束へ移譲すべき。` },
+
+    { id:"2", tone:"mx", name:"再生・回収（Recycle）", badge:"mixed", feed:"→ 根③（＋根①が解けば緩和）",
+      abs:"固着被膜を母粒子を壊さず選択剥離し初期性能へ／注湯後の固着塊を容易崩壊・回収",
+      A:[`有機系（フラン/フェノールウレタン/生型砂）は乾式機械再生で90–95%回収、焙焼でLOI<0.2%（時に新砂超え）、注湯後崩壊も熱分解で容易＝商用確立`,
+         `部分循環の無機再生（新砂~50%混合）も商用A`],
+      B:[["石油精製FCC触媒再生（低温オゾン150℃・74.3%脱コーク）","高 ⚠有機系限定/『Mn+La ~15倍』裏取り不可"],
+         ["精米の粒間摩擦（段階制御で破砕最小化）","高"],
+         ["電池ダイレクトリサイクル（選択デコーティング+アニール）","中 ⚠『84%NaOH回収』要検証"],
+         ["半導体CO₂エアロゾル／制御キャビテーション","中"],
+         ["PETアルカリ脱ラベル+浮沈分離","中"],
+         ["自然界の裂開/離層（界面中葉を酵素で選択弱化）","低・着想価値大"]],
+      C:[`無機系が難所：水ガラス残留Na₂Oが乾式~0.5%下限・湿式~0.15%だが高塩排水/再生反復で耐火度低下。未解決は『無機 × 閉ループ × 大量連続 × 経済性』の交点に局在`,
+         `★統合課題（level-2→B判定）：剥がす側+剥がした物の<b>三重閉ループ同時循環</b>（製紙苛性化/石灰サイクル US4668342A・100年商用が同型）`],
+      sources:`ScienceDirect S030147972031553X; ZHY Casting; China Foundry 10.1007/s41230-018-8165-4; J.Clean.Prod. S0959652624040241（珪藻）`,
+      verify:`分類=妥当。捏造URLなし。最有力FCC=実在確証だが適用は有機系限定。` },
+
+    { id:"3", tone:"c", name:"バインダーの環境対応（脱VOC・無機化）", badge:"mixed ★★根に最も近い", feed:"→ 根①",
+      abs:"常温固化 ↔ 注湯時無害 ↔ 用済み後は容易解体 の オン/オフ可逆接着",
+      A:[`無機化でBTEX>90% / PAH>94% / NOx>98% 減。INOTEC / CORDIS / GEOPOL が量産投入（主にアルミのエンジンブロック/ヘッド）`],
+      star:`🌟最有力C研究テーマ：<b>リン酸塩系 Mg-Al複塩のキュア温度依存ナノ結晶相制御</b>（Gong et al., Ceramics Int. 2025：即時圧縮強度0.319→0.931 MPa〔135℃硬化比+90.3%〕・崩壊性φ>97.9%〔710℃焼成後の残留圧縮強度<0.051 MPa〕・修飾剤なし完全無機・150-175℃で非晶質/ナノ結晶 MgxAly(PO4)z(OH)w·nH₂O 結合相・≥200℃でMg₃(PO₄)₂脆化相＝“崩壊温度窓”を処方で設計可、transferability高）。クリストバライトα↔β相転移を無機の膨張破断スイッチに <span class="flag">⚠結晶質シリカの労衛ハザード無害化と両立必須</span> <span class="flag">⚠数値補正(2026-06-02・抄録snippet照合)：旧「圧縮強度+90.3%かつ崩壊性>97.9%」は捏造でなく抄録実在だが要再フレーム。「+90.3%」は150-175℃最適品の即時圧縮強度を『135℃硬化品』比で見た相対増分(絶対ピーク0.931 MPa＝sub-1 MPa)、フルスイープ0.319→0.931 MPaは+191.8%。「>97.9%」は(表面)崩壊性φで710℃焼成残留<0.051 MPaが実証(0.051/0.931の強度比94.5%とは別メトリクス)。150-175℃窓・≥200℃Mg₃(PO₄)₂・相組成は抄録一致＝分類不変。710℃は崩壊試験の焼成温度で対象合金を示さない。全文ペイウォール＝一次値は抄録snippet止まり</span>`,
+      C:[`鉄系の可逆オフ（＝中心矛盾の核）：けい酸ゲルが鉄高温で焼失せず焼着・崩壊不良／使用済み無機砂の乾式再生困難／耐湿性低下。ASK 2018が「鉄では大規模量産適用なし」と明言`],
+      B:[["debond-on-demand（可塑剤マイクロカプセル/熱膨張マイクロスフェア/retro-Diels-Alder）","有機・低温→無機翻案が別個の大課題"],
+         ["歯科グラスアイオノマー（無機×処方で除去性を設計）","高"],
+         ["アルギン酸 Ca²⁺/EDTA可逆架橋・ビトリマー・生分解バインダー","—"]],
+      sources:`PMC11122468(無機バインダーreview); ASK Chemicals, Mück & Appelt, CPT 3/2018; Gong et al. Ceramics Int. 2025 S0272884225041586; US9968989B2 <span class="flag">⚠JP6456501B2出願人"Dr Axion"要確認／GEOPOLは実は鋼・鋳鉄対応・機械再生~90%（報告の非鉄中心は要修正）</span>`,
+      verify:`分類=妥当(mixed)。捏造ゼロ。最有力候補TEMは実在だが鉄制約下で直接不成立（報告も明示）。is_root_problem=true 妥当。` },
+
+    { id:"4", tone:"a", name:"廃砂の出口（Recover）", badge:"A（mixed併記）", feed:"従属（量的出口=A）",
+      abs:"劣化廃材を別用途の有価原料へ転換し、有害物の溶出を封じる",
+      A:[`WFS（SiO₂≥80%）はセメント代替原料・路盤・骨材・人工土壌で実利用。EPA(530-R-14-003)が鉄/鋼/アルミ系シリカ砂の土壌系利用を保護的と判定、年260万t有価利用（96%が鉄鋼アルミ）`],
+      B:[["フライアッシュのジオポリマー化（重金属の三次元固定）","高"],
+         ["MSWI飛灰のジチオカルバミン酸キレート固定","高 ⚠長期安定性課題"],
+         ["鉱山尾鉱のリン酸固定（ピロモルファイト化）","高（Pb 42–84%ばらつき）"],
+         ["自然界のピロモルファイト Pb₅(PO₄)₃Cl（熱力学最安定相）","中"],
+         ["非鉄製錬の溶融ガラス化/共還元","中"]],
+      C:[`鉛入り黄銅/青銅・非鉄高汚染系はEPA対象外。鉄添加は短期TCLP合格でも長期再溶出（Kendall 2003）`],
+      sources:`Frontiers Built Env 2024; EPA-530-R-14-003; セメント協会2019; J.Environ.Manage. S0301479723020753; ★追記推奨先行特許 US4408985（廃鋳物砂中有害物固定）`,
+      verify:`<span class="flag">⚠要修正：「CaO30%でCd98.96%/Pb99.19%固定」は出典(PMC11025342)と不一致＝実際CaO32%・>93.6%。「Spinelli 2023でPb>99.8%」は出典混線(PMC7796426)＝数値・著者・因果を格下げ。</span>分類A=妥当。最有力ジオポリマー=確証。` },
+
+    { id:"5", tone:"c", name:"エネルギー・CO₂（省エネ）", badge:"mixed ★★根に最も近い（N3の双子）", feed:"→ 根①",
+      abs:"付着有機物を除去する処理の熱・電力を最小化し、排熱を回収",
+      A:[`流動焙焼炉heat recovery module、溶解保持炉の排ガス予熱、VFD+排熱回収式流動層冷却(30–50%省エネ)、FSP凝縮熱回収式“カーボンニュートラル乾燥”（無機砂で再生エネ75%減・乾燥エネ60%減）＝成熟 <span class="flag">⚠『22-30→13-16 m³/t』は本来湿式再生由来</span>`],
+      B:[["自己熱再生（SHR/エクセルギー再生）（乾燥CO₂在来比36%・一次エネ74%, Kansha系）","高"],
+         ["加圧過熱蒸気乾燥（回収80–95%）/ 高温ヒートポンプ乾燥","高"],
+         ["乾式スラグ造粒の高温粒子顕熱回収（>60%）","高"],
+         ["セメント多段プレヒータ+ORC／非熱プラズマVOC分解／UV光触媒","中〜低"]],
+      C:[`マイクロ波/非熱プラズマ/光触媒は塊内部の均一処理・量産スループット未達。自立燃焼(auto-thermal)は床温安定困難`,
+         `🌟level-2が抽出した真の根：無機化で“燃焼除去の不要化”は達成も矛盾は再生工程へ移動 → 残留Na₂Oを<b>再加熱も多量水も使わず除去する『低エネ de-bond + de-sodium』が未確立</b>（根①②と収束）`],
+      sources:`foundrymag 2024; FSP GmbH(foundry-planet); ScienceDirect S037838201200241X(SHR); 富士化学#4512 <span class="flag">⚠level-2のdebond/ビトリマー数値2件は出典帰属ミス（数値は実在）</span>`,
+      verify:`分類=妥当。捏造URLなし。SHR=実在確証だが鋳物砂への適用例は文献上なし（=B未移植の裏付け）。is_root 妥当。` },
+
+    { id:"6", tone:"mx", name:"計測・制御（DX）", badge:"mixed ★根（計測インフラ）", feed:"→ 根②",
+      abs:"再生粒子の状態をインライン定量し、配合・工程を閉ループ制御",
+      A:[`新東工業 US11976790B2（ML-LOI推定で調砂サイクル制御）、Simpson Hartley/MPM（生型砂コンパクタビリティ自動制御・ベントナイト20%超削減）、赤外迅速LOI（約10分・WMU実証）＝商用成熟`],
+      B:[["製薬PAT（NIR/Raman分光で組成インライン定量）","中〜高・要検証（鋳物砂NIRはDungan&Reeves 2007で定性止まり）"],
+         ["リサイクルLIBS（元素インライン分析）","中（Si過多マトリクス効果・C線干渉）"],
+         ["水処理SCD（表面電荷オンライン制御）","中（乾式翻訳が未着手）"],
+         ["食品ハイパースペクトル（粒子別品質マップ）","中"],
+         ["ソフトセンサ（ベイズNN）","高（同業応用済）"]],
+      C:[`🌟level-2が抽出した真の根：再生砂の<b>「表面活性」を一次計測量として定義し標準試験法・ground truthを確立</b>（LOIはバルク代用／無機系では残らない）。★セメントR3試験(ASTM C1897)が方法論移植源、IGC・SurPASS(固体ゼータ)が真値生成器`,
+         `C-core：高温・高粉塵の再生砂表面の薄被膜をインライン直接定量+真値確立は他産業にも完全前例が乏しい`],
+      sources:`新東 US11976790B2; Dungan & Reeves 2007 J.NIR Spectrosc.15(3):189; Sensors 2024 PMC11679423(EIS R²=0.94); RILEM TC267-TRM; AAPS J 10.1208/s12248-022-00748-4 <span class="flag">⚠「オーリチ化被膜厚み」は用語当てはめが緩い</span>`,
+      verify:`分類=妥当(mixed)。捏造ゼロ（出典精度が非常に高い）。NIR PATはtransferability楽観バイアス要修正。is_root 妥当。` }
+  ]
+};
+
+/* ---------- render ---------- */
+const el = (t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+const flagAttr = s => /⚠/.test(s) ? ' data-flag="1"' : '';
+
+// ROOT anchor
+(function(){
+  const s=document.getElementById('root');
+  s.appendChild(el('div','sectlabel','本（根）｜常にここへ立ち返る'));
+  const card=el('div','rootq');
+  card.innerHTML=`<span class="tag">根の課題</span><h2>${DATA.question}</h2>
+    <div class="contradiction">
+      <div style="font-size:12px;font-weight:800;color:var(--c);letter-spacing:.08em;margin-bottom:5px">中心矛盾（更新版）</div>
+      <div class="core">${DATA.contradiction.core}</div>
+      <ul>${DATA.contradiction.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    </div>`;
+  s.appendChild(card);
+})();
+
+// ROOT problems (本)
+(function(){
+  const s=document.getElementById('roots');
+  s.appendChild(el('div','sectlabel','根底の課題（本）｜枝の未解決(C)はこの3つに収束する'));
+  s.appendChild(el('div','honnote','🎯 ここが「本」。下の6枝は「末」。各枝の未解決(C)を辿ると、必ずこの3つの根へ集まる構造になっている。'));
+  const grid=el('div','roots');
+  DATA.roots.forEach(r=>{
+    const c=el('div','rootcard');
+    c.innerHTML=`<div class="num">${r.n}</div><h3>${r.title}</h3>
+      <div class="feeds">${r.feeds.map(f=>`<span class="feedchip">⟵ ${f}</span>`).join('')}</div>
+      <div class="why">${r.why}</div>`;
+    grid.appendChild(c);
+  });
+  s.appendChild(grid);
+})();
+
+// convergence
+(function(){
+  const s=document.getElementById('conv');
+  s.appendChild(el('div','sectlabel','収束図｜末（枝）→ 本（根）'));
+  const grid=el('div','conv');
+  const map=[
+    {root:"①", title:"高温無機 debond-on-demand", srcs:[["3","c"],["5","c"]]},
+    {root:"②", title:"表面活性の一次量・標準試験", srcs:[["6","mx"]]},
+    {root:"③", title:"三重閉ループ統合（B寄り）", srcs:[["2","mx"]]}
+  ];
+  map.forEach(m=>{
+    const col=el('div','convcol');
+    col.innerHTML=`<div class="head"><span class="b">根${m.root}</span><span>${m.title}</span></div>
+      <div class="flowrow"><span class="src">${m.srcs.map(x=>`<span class="bchip ${x[1]}">枝${x[0]}</span>`).join('')}</span><span class="arrow">⟶</span><span class="bchip" style="background:var(--root-bg);border-color:var(--root-bd);color:var(--root)">根${m.root}</span></div>`;
+    grid.appendChild(col);
+  });
+  const sub=el('div','subordinate','従属（主にA＝既に解決済みで、根の解が決まれば従う）：<b>枝1 発生源削減</b>（TOは鋳造へ移植済み）・<b>枝4 廃砂の出口</b>（量的出口は確立）。');
+  grid.appendChild(sub);
+  s.appendChild(grid);
+})();
+
+// tree (branches)
+(function(){
+  const s=document.getElementById('tree');
+  s.appendChild(el('div','sectlabel','末（6枝）｜クリックで詳細を展開'));
+  const top=el('div','treetop'); top.innerHTML=`<div class="rootmini">根：鋳物砂の循環</div><div class="stem"></div>`;
+  s.appendChild(top);
+  const wrap=el('div','branches');
+  const defOpen=new Set(["2","3","5","6"]);
+  DATA.branches.forEach(b=>{
+    const br=el('div','branch t-'+b.tone+(defOpen.has(b.id)?' open':''));
+    const groups=[];
+    if(b.A&&b.A.length) groups.push(grp('k-a','✅ A 同業で既に解決（既知）',b.A.map(x=>itm('a',x))));
+    if(b.star) groups.push(grp('k-c','🌟 最有力の研究の種',[itm('c',b.star,true)]));
+    if(b.B&&b.B.length) groups.push(grp('k-b','★ B 異業種からの移植候補',b.B.map(x=>itm('b',`${x[0]}<span class="tlevel">転用:${x[1]}</span>`))));
+    if(b.C&&b.C.length) groups.push(grp('k-c','🔴 C 真の未解決（根へ）',b.C.map(x=>itm('c',x))));
+    groups.push(grp('k-meta','📚 主要出典',[itm('meta',b.sources)]));
+    groups.push(grp('k-meta','🛡 反証検証',[itm('meta',b.verify)]));
+    br.innerHTML=`
+      <div class="bhead">
+        <div class="nodeid">${b.id}</div>
+        <div class="htext">
+          <div class="name">${b.name}</div>
+          <div class="abs">${b.abs}</div>
+          <div class="badges"><span class="badge cls">${b.badge}</span><span class="badge feed">${b.feed}</span></div>
+        </div>
+        <div class="caret">▶</div>
+      </div>
+      <div class="body">${groups.join('')}</div>`;
+    br.querySelector('.bhead').addEventListener('click',()=>br.classList.toggle('open'));
+    wrap.appendChild(br);
+  });
+  s.appendChild(wrap);
+  function grp(k,label,items){return `<div class="group ${k}"><div class="glabel">${label}</div>${items.join('')}</div>`;}
+  function itm(kind,html,star){return `<div class="item${star?' star':''}" data-kind="${kind}"${flagAttr(html)}>${html}</div>`;}
+})();
+
+/* ---------- toolbar ---------- */
+document.getElementById('honBtn').addEventListener('click',function(){
+  document.body.classList.toggle('honmatsu'); this.classList.toggle('on');
+});
+document.getElementById('expAll').addEventListener('click',()=>document.querySelectorAll('.branch').forEach(b=>b.classList.add('open')));
+document.getElementById('colAll').addEventListener('click',()=>document.querySelectorAll('.branch').forEach(b=>b.classList.remove('open')));
+
+const fbtns=[...document.querySelectorAll('button[data-f]')];
+fbtns.forEach(btn=>btn.addEventListener('click',()=>{
+  fbtns.forEach(b=>b.classList.remove('on')); btn.classList.add('on');
+  applyFilter(btn.dataset.f);
+}));
+function applyFilter(f){
+  // expand all branches when filtering so matches are visible
+  if(f!=='all') document.querySelectorAll('.branch').forEach(b=>b.classList.add('open'));
+  document.querySelectorAll('.group').forEach(g=>{
+    const k=[...g.classList].find(c=>c.startsWith('k-')).slice(2); // a/b/c/meta
+    const items=[...g.querySelectorAll('.item')];
+    let visible=0;
+    items.forEach(it=>{
+      let show=true;
+      if(f==='all') show=true;
+      else if(f==='flag') show=it.getAttribute('data-flag')==='1';
+      else show=(it.dataset.kind===f);
+      it.style.display=show?'':'none'; if(show)visible++;
+    });
+    let gShow = (f==='all') ? true
+      : (f==='flag') ? visible>0
+      : (k===f);
+    g.style.display=gShow?'':'none';
+  });
+}
+
+/* ===== horizontal tree view ===== */
+const stripTags = h => String(h).replace(/<[^>]*>/g,'');
+const short = (h,n) => { const t=stripTags(h); return t.length>n ? t.slice(0,n)+'…' : t; };
+const shortTitle = t => t.length>26 ? t.slice(0,26)+'…' : t;
+function hkid(kind, html, star, tlevel){
+  const icon = star ? '🌟' : kind==='a' ? '✅' : kind==='b' ? '★' : '🔴';
+  const lab = short(html, star?42:36);
+  const tl = tlevel ? ` <span class="tlevel">転用:${tlevel}</span>` : '';
+  const fl = /⚠/.test(html) ? ' flagk' : '';
+  return `<div class="hkid k-${kind}${star?' star':''}${fl}"><span class="lab">${icon} ${lab}</span><span class="full">${icon} ${html}${tl}</span></div>`;
+}
+let hRendered=false, edgeRaf=null;
+function renderHorizontal(){
+  const s=document.getElementById('hview');
+  const subs=DATA.branches.map(b=>{
+    let kids='';
+    if(b.A) b.A.forEach(x=>kids+=hkid('a',x));
+    if(b.star) kids+=hkid('c',b.star,true);
+    if(b.B) b.B.forEach(x=>kids+=hkid('b',x[0],false,x[1]));
+    if(b.C) b.C.forEach(x=>kids+=hkid('c',x));
+    return `<div class="hsub t-${b.tone} open" data-id="${b.id}">
+        <div class="hbnode">
+          <div class="nodeid">${b.id}</div>
+          <div class="hbtext"><div class="name">${b.name}</div>
+            <div class="badges"><span class="badge cls">${b.badge}</span><span class="badge feed">${b.feed}</span></div></div>
+          <span class="caret">▶</span>
+        </div>
+        <div class="hkids">${kids}</div>
+      </div>`;
+  }).join('');
+  s.innerHTML = `<div class="sectlabel">横向きツリー｜左＝本（根）→ 右＝末（枝の詳細）。枝をクリックで開閉、項目をクリックで全文。</div>
+    <div class="hroots">${DATA.roots.map(r=>`<span class="hrootchip"><b>${r.n}</b>${shortTitle(stripTags(r.title))}</span>`).join('')}</div>
+    <div class="hscroll"><div class="hcontent">
+      <svg class="hedges"></svg>
+      <div class="hlayout">
+        <div class="hroot"><div class="hroot-tag">根の課題</div><div class="hroot-q">鋳物砂の循環を<br>どう成立させるか</div></div>
+        <div class="hbranches">${subs}</div>
+      </div>
+    </div></div>`;
+  s.querySelectorAll('.hsub .hbnode').forEach(n=>n.addEventListener('click',()=>{ n.parentElement.classList.toggle('open'); scheduleDraw(); }));
+  s.querySelectorAll('.hkid').forEach(k=>k.addEventListener('click',()=>{ k.classList.toggle('exp'); scheduleDraw(); }));
+  const sc=s.querySelector('.hscroll'); if(sc) sc.addEventListener('scroll', scheduleDraw);
+}
+function drawEdges(){
+  if(!document.body.classList.contains('view-h')) return;
+  const s=document.getElementById('hview');
+  const content=s.querySelector('.hcontent'); if(!content) return;
+  const svg=s.querySelector('.hedges');
+  svg.setAttribute('width',0); svg.setAttribute('height',0);
+  const W=content.scrollWidth, H=content.scrollHeight;
+  svg.setAttribute('width',W); svg.setAttribute('height',H); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const sr=svg.getBoundingClientRect(), ox=sr.left, oy=sr.top;
+  const root=s.querySelector('.hroot').getBoundingClientRect();
+  const COL={a:'#7cb342', b:'#42a5f5', c:'#ef5350', root:'#dcae3c'};
+  const edge=(a,b,col,w)=>{
+    const x1=a.right-ox, y1=a.top+a.height/2-oy, x2=b.left-ox, y2=b.top+b.height/2-oy, mx=(x1+x2)/2;
+    return `<path d="M ${x1} ${y1} C ${mx} ${y1} ${mx} ${y2} ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="${w}" opacity="0.85"/>`;
+  };
+  let p='';
+  s.querySelectorAll('.hsub').forEach(sub=>{
+    const bn=sub.querySelector('.hbnode').getBoundingClientRect();
+    p+=edge(root,bn,COL.root,2.4);
+    if(sub.classList.contains('open')) sub.querySelectorAll('.hkid').forEach(k=>{
+      const kind=k.classList.contains('k-a')?'a':k.classList.contains('k-b')?'b':'c';
+      p+=edge(bn,k.getBoundingClientRect(),COL[kind],1.5);
+    });
+  });
+  svg.innerHTML=p;
+}
+function scheduleDraw(){ if(edgeRaf) cancelAnimationFrame(edgeRaf); edgeRaf=requestAnimationFrame(()=>requestAnimationFrame(drawEdges)); }
+function setView(v){
+  const h = v==='h';
+  document.body.classList.toggle('view-h', h);
+  document.body.classList.toggle('view-v', !h);
+  document.getElementById('viewH').classList.toggle('on', h);
+  document.getElementById('viewV').classList.toggle('on', !h);
+  if(h){
+    document.body.classList.remove('honmatsu');
+    document.getElementById('honBtn').classList.remove('on');
+    if(!hRendered){ renderHorizontal(); hRendered=true; }
+    scheduleDraw();
+  }
+}
+document.getElementById('viewV').addEventListener('click',()=>setView('v'));
+document.getElementById('viewH').addEventListener('click',()=>setView('h'));
+document.getElementById('expAll').addEventListener('click',()=>{ document.querySelectorAll('.hsub').forEach(x=>x.classList.add('open')); scheduleDraw(); });
+document.getElementById('colAll').addEventListener('click',()=>{ document.querySelectorAll('.hsub').forEach(x=>x.classList.remove('open')); scheduleDraw(); });
+window.addEventListener('resize', scheduleDraw);
+</script>
+</body>
+</html>

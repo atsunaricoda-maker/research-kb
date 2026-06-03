@@ -1,0 +1,8 @@
+{
+  "title": "研究ナレッジベース",
+  "subtitle": "再帰分解×水平思考ワークフローの全研究を横断閲覧・検索",
+  "projects": [
+    { "id": "casting-sand-circularity", "file": "casting-sand-circularity.json" },
+    { "id": "lightweight-iron", "file": "lightweight-iron.json" }
+  ]
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>鋳鉄部品の軽量化 — 3層ツリー（横向き図解・解決/未解決・出典つき）</title>
+<style>
+  :root{
+    --ink:#1f2933;--muted:#65727f;--line:#d7dee6;--bg:#eef1f5;--card:#fff;
+    --a:#2e7d32;--a-bg:#e8f5e9;--a-bd:#a5d6a7;
+    --b:#1565c0;--b-bg:#e3f2fd;--b-bd:#90caf9;
+    --c:#c62828;--c-bg:#fdecea;--c-bd:#ef9a9a;
+    --mx:#e67e00;--mx-bg:#fff4e2;--mx-bd:#ffcc80;
+    --gold:#a6791f;--gold-bg:#fff8e1;--gold-bd:#e6c34d;--flag:#b23b00;
+    --xind:#6a1b9a;--xind-bg:#f5edfb;--xind-bd:#ce93d8;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Meiryo","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;font-size:15px}
+  .top{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#fff,#fbfcfe);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(20,40,80,.06);padding:10px 18px}
+  .top h1{margin:0;font-size:18px}
+  .top .meta{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .legend{display:flex;gap:13px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,0,0,.15);display:inline-block}
+  .dot.a{background:var(--a-bg);border-color:var(--a-bd)}.dot.b{background:var(--b-bg);border-color:var(--b-bd)}
+  .dot.c{background:var(--c-bg);border-color:var(--c-bd)}
+  .dot.spine{background:var(--gold);border-color:var(--gold)}.dot.x{background:var(--xind-bg);border-color:var(--xind-bd)}
+  main{max-width:1280px;margin:0 auto;padding:18px 16px 70px}
+  .sectlabel{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.1em;margin:22px 0 9px 2px;text-transform:uppercase}
+  .anchor{background:linear-gradient(135deg,#fffdf4,#fff8e1);border:2px solid var(--gold-bd);border-radius:14px;padding:14px 16px;box-shadow:0 5px 16px rgba(150,110,20,.09)}
+  .anchor .q{font-size:18px;font-weight:800;color:var(--gold)}
+  .anchor .rf{font-size:13.5px;margin-top:7px}
+  .deepest{background:#fff;border:1px solid var(--c-bd);border-left:5px solid var(--c);border-radius:12px;padding:12px 15px;margin-top:11px}
+  .deepest .lab{font-size:11.5px;font-weight:800;color:var(--c);letter-spacing:.06em;margin-bottom:4px}
+  .hscroll{overflow:auto;max-height:80vh;border:1px solid var(--line);border-radius:14px;padding:24px 28px;background:radial-gradient(circle at 1px 1px,#dde5ee 1px,transparent 0) 0 0/22px 22px,#fbfcfe}
+  .hcontent{position:relative;width:max-content;min-width:100%}
+  .edges{position:absolute;top:0;left:0;pointer-events:none;z-index:0;overflow:visible}
+  .cols{position:relative;z-index:1;display:flex;align-items:center;gap:70px}
+  .col{flex:none;display:flex;flex-direction:column;gap:14px}
+  .colhead{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-align:center;margin-bottom:2px}
+  .rootnode{align-self:center;background:var(--gold);color:#fff;font-weight:800;border-radius:13px;padding:14px 16px;max-width:190px;box-shadow:0 5px 16px rgba(150,110,20,.18)}
+  .rootnode small{display:block;font-weight:500;font-size:11px;opacity:.9;margin-top:3px}
+  .node{width:280px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--mx);border-radius:12px;padding:10px 12px;cursor:pointer;transition:.15s}
+  .node:hover{box-shadow:0 4px 12px rgba(20,40,80,.12)}
+  .node.spine{border-color:var(--gold-bd);border-left-color:var(--gold);background:var(--gold-bg)}
+  .node.deepestnode{border:2px solid var(--c);background:#fff5f4}
+  .node .nh{display:flex;align-items:flex-start;gap:7px}
+  .node .nm{font-weight:700;font-size:13.5px;flex:1}
+  .tag{font-size:10px;font-weight:800;padding:1px 7px;border-radius:999px;white-space:nowrap}
+  .tag.spine{color:#fff;background:var(--gold)} .tag.root{color:#fff;background:var(--c)}
+  .statusrow{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+  .schip{font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;border:1px solid}
+  .schip.a{color:var(--a);background:var(--a-bg);border-color:var(--a-bd)}
+  .schip.b{color:var(--b);background:var(--b-bg);border-color:var(--b-bd)}
+  .schip.c{color:#fff;background:var(--c);border-color:var(--c);font-weight:800}
+  .schip.c0{color:var(--a);background:var(--a-bg);border-color:var(--a-bd)}
+  .caret{color:var(--muted);font-size:11px;margin-top:2px}
+  .node.open .caret{transform:rotate(90deg)}
+  .node .body{display:none;margin-top:8px}
+  .node.open .body{display:block}
+  .blk{border-radius:8px;padding:6px 9px;margin-top:6px;font-size:12px}
+  .blk .bl{font-weight:800;font-size:11px;margin-bottom:3px;letter-spacing:.03em}
+  .blk.now{background:#f6f8fa;border:1px solid var(--line)} .blk.now .bl{color:var(--muted)}
+  .blk.b{background:var(--b-bg);border:1px solid var(--b-bd)} .blk.b .bl{color:var(--b)}
+  .blk.c{background:var(--c-bg);border:1px solid var(--c-bd)} .blk.c .bl{color:var(--c)}
+  .blk.refs{background:#fbfcfd;border:1px solid var(--line)} .blk.refs .bl{color:#46535f}
+  .blk.c div.it{color:#7a1f1f;margin:2px 0}
+  .xchip2{display:inline-block;font-size:10.5px;background:#fff;color:var(--b);border:1px solid var(--b-bd);border-radius:999px;padding:1px 7px;margin:2px 3px 0 0}
+  .ref{font-size:11px;margin:3px 0;line-height:1.45}
+  .ref a{color:var(--b);text-decoration:none} .ref a:hover{text-decoration:underline}
+  .vb{font-size:9px;padding:0 5px;border-radius:999px;border:1px solid;margin-left:4px;white-space:nowrap}
+  .vb.ok{color:var(--a);border-color:var(--a-bd);background:var(--a-bg)}
+  .vb.gen{color:var(--b);border-color:var(--b-bd);background:var(--b-bg)}
+  .vb.warn{color:var(--flag);border-color:var(--mx-bd);background:var(--mx-bg)}
+  .bridges{display:flex;flex-direction:column;gap:10px}
+  .bridge{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 13px}
+  .bfrom{background:var(--xind-bg);color:var(--xind);border:1.5px solid var(--xind-bd);border-radius:9px;padding:5px 11px;font-weight:700;font-size:12.5px;flex:none;min-width:210px}
+  .barrow{color:var(--xind);font-weight:800;font-size:18px}
+  .bto{background:var(--gold-bg);color:#6b5310;border:1.5px solid var(--gold-bd);border-radius:9px;padding:5px 11px;font-weight:700;font-size:12.5px;flex:none}
+  .bnote{font-size:12px;color:var(--muted);flex:1;min-width:200px}
+  .controls{display:flex;gap:8px;margin-top:9px}
+  button.tb{border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;padding:5px 11px;border-radius:999px;font-size:12.5px}
+  button.tb:hover{border-color:#9fb0c3}
+  footer{max-width:1280px;margin:0 auto;padding:0 16px 50px;color:var(--muted);font-size:12px}
+  @media print{@page{size:A3 landscape;margin:10mm} .top{position:static} .node .body{display:block!important} button.tb{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>鋳鉄部品の軽量化 — 3層ツリー（横向き図解）</h1>
+  <div class="meta">v2.1 runaway-safe 実走（18体・12分・暴走なし）。各ノードは「既知(A)・移植(B)・未解決(C)」の混在。<b>赤＝未解決</b>を強調表示。</div>
+  <div class="legend">
+    <span><i class="dot a"></i>A 既知/解決済</span>
+    <span><i class="dot b"></i>B 異業種で解ける(移植)</span>
+    <span><i class="dot c"></i>C 未解決</span>
+    <span><i class="dot spine"></i>背骨（採択経路）</span>
+    <span><i class="dot x"></i>異業種転用</span>
+    <span>クリックで展開（現状/移植B/未解決C/出典）</span>
+  </div>
+  <div class="controls">
+    <button class="tb" id="expAll">すべて展開</button>
+    <button class="tb" id="colAll">すべて畳む</button>
+  </div>
+</header>
+<main>
+  <section>
+    <div class="sectlabel">本：根の問い と 最深root</div>
+    <div class="anchor">
+      <div class="q">鋳鉄部品の軽量化（薄肉×中空×高強度の両立）をどう実現するか</div>
+      <div class="rf" id="refined"></div>
+      <div class="deepest"><div class="lab">🎯 最深の根（level-3・未解決の核）</div><div id="deepest"></div></div>
+    </div>
+  </section>
+  <section>
+    <div class="sectlabel">横向きツリー：根 → L1 → L2 → L3（背骨＝採択経路）</div>
+    <div class="hscroll"><div class="hcontent">
+      <svg class="edges" id="edges"></svg>
+      <div class="cols" id="cols"></div>
+    </div></div>
+  </section>
+  <section>
+    <div class="sectlabel">関連性：異業種転用マップ（どの産業が どのノードに効くか）</div>
+    <div class="bridges" id="bridges"></div>
+  </section>
+</main>
+<footer>鋳鉄部品の軽量化 3層ツリー ｜ 2026-06-03 ｜ 全項目「推定・要検証」。出典バッジ ✓実在/◯生成/⚠要確認。元データ: lightweight-tree-v2.md</footer>
+<script>
+const T = {
+  refined:"薄肉（2–4mm）ダクタイル鋳鉄で、意図的な内部多孔質（格子・中空）を保ちながら引張300MPa超・疲労耐性を同時達成するには、凝固中の Fe-C-Si-Mo 炭化物析出抑制・CET（柱状→等軸）転移制御・黒鉛核生成密度の三変数を、薄肉冷却速度（50–500 K/s）下でいかに統合設計するか。",
+  deepest:"Fe-C-Si-Mo 四元系で、50–100 MPa の静水圧（スクイーズ鋳造）と薄肉冷却速度の重畳下に M₇C₃・M₃C 炭化物の析出ロカスがどう動くかを定量化した相図データが無い。実測では圧力増大は炭化物を“抑制”でなく“促進”しうる（過冷却増→黒鉛核生成抑制）。Si（フェライト安定）×Mo（炭化物促進）の非線形競合係数も未確立。これが薄肉×中空×高強度の工業化を阻む最深根底課題。",
+  pick:{L1:'L1-3',L2:'L2-1',L3:'L3-2'},
+  L1:[
+    {id:'L1-1',name:'内部多孔質の制御生成',sum:'(A)水素-水素化物ガス発生＝自動車既知／(B)微細胞発泡(射出成形)・中空Fe-N粉のSPS焼結(44–53%気孔・134–223MPa)が移植可。',cross:['射出成形:MuCell発泡','粉末冶金:中空Fe-N焼結'],uns:['薄肉(2–4mm)で40%超の気孔率でも延性・等方性・疲労を保ち凝固組織を制御','多孔質鉄薄肉での延性・等方性・疲労の維持'],refs:[{t:'PBF-LB Process-Induced Regular Cavities for Lightweight AlSi10Mg',u:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8587216/',v:'ok'},{t:'A Review on Porosity Formation in Aluminum-Based Alloys',u:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10004325/',v:'ok'},{t:'Vacuum assisted high pressure die casting of aluminum alloys',u:'https://www.sciencedirect.com/science/article/abs/pii/S0924013600005458',v:'ok'}]},
+    {id:'L1-2',name:'荷重経路に沿った計算幾何・格子最適化',sum:'航空AMの格子で24–52%軽量(A既知)。SLM鉄は強度優。',cross:['航空/AM:トポロジー最適化','生体:TPMS格子'],uns:['細い柱(0.5–1mm)・高冷却速度での鉄の炭化物形成','AM(SLM) vs 重力鋳造の大量生産の経済性'],refs:[{t:'Design and Topology Optimization of Lattice Structures (AM)',u:'https://www.researchgate.net/publication/314613885',v:'ok'},{t:'A review on AM and topology optimization for weight reduction',u:'https://www.sciencedirect.com/science/article/abs/pii/S2214785322010525',v:'ok'},{t:'Design Considerations for Lightweighting with Ductile Iron Castings',u:'',v:'ok'}]},
+    {id:'L1-3',name:'薄肉部のための冷却制御・結晶粒微細化',sum:'(A)複合Ca-Ba/REイノキュラント+Bi/Co後期添加で無carbide 1–3mm＝既確立／(B)スクイーズ圧力冷却・RMF磁場攪拌・AMナノ粒子核生成は移植候補(鉄実証は限定的)。',cross:['スクイーズ鋳造','連鋳:電磁攪拌(M-EMS)','AM:ナノ粒子核生成'],uns:['スクイーズ鋳造と複合inoculantの鉄での同時活用実績が極少','RMF凝固がFe磁性鋳鉄でどの条件で等軸転移を起こすかの定量モデル未確立'],refs:[{t:'Production and properties of thin-wall ductile iron castings',u:'https://www.researchgate.net/publication/311165730',v:'ok'},{t:'Effect of Inoculants on Thin-Walled Ductile Iron Castings',u:'https://www.researchgate.net/publication/377593415',v:'ok'},{t:'Effects of Inoculation on High-Si Ductile Iron, Thin Wall',u:'https://www.mdpi.com/2075-4701/10/8/1091',v:'ok'}]},
+    {id:'L1-4',name:'異材複合・補剛材の埋め込み',sum:'サンドイッチ複合・セラミック挿入など高転用性4手法。',cross:['自動車:サンドイッチ複合','セラミック挿入'],uns:['埋込時の気孔/層間剥離をどう回避するか','材料ペアリング(どのセラミック×どの延性挿入相か)'],refs:[{t:'Structural Design/Manufacturing of Sandwich Composite Floor (Automotive)',u:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8037993/',v:'ok'},{t:'Sandwich-type structural composite component (patent)',u:'https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/8808830',v:'ok'},{t:'Mechanical interaction between AM metal lattice and bone',u:'https://www.sciencedirect.com/science/article/abs/pii/S1751616121002897',v:'ok'}]},
+    {id:'L1-5',name:'鋳造プロセス選定・量産可否ゲート',sum:'(A)スクイーズ(±0.5mm,1.5–2.0mm壁)＋重力/スクイーズ複合が中量産解。',cross:['スクイーズ鋳造','SLM鉄'],uns:['FLOW-3D/Magmasoft ↔ トポロジー最適化の自動フィードバックループ','SLM鉄の内部空洞欠陥(未溶融)と内壁の相関'],refs:[{t:'A Review of Additive Manufacturing',u:'https://doi.org/10.5402/2012/208760',v:'ok'},{t:'Laser/e-beam powder-bed AM of metallic implants',u:'https://doi.org/10.1002/jor.23075',v:'ok'},{t:'A review of topology optimization for AM',u:'https://doi.org/10.1016/j.cja.2020.09.020',v:'ok'}]}
+  ],
+  L2:[
+    {id:'L2-1',name:'急速凝固の組織形成',sum:'(A)冷却速度最適化／(B)RMF・スクイーズ・チル鋳造。',cross:['RMF磁場攪拌','スクイーズ/チル鋳造'],uns:['薄肉充填中の過渡的過冷却波形の最適設計(微圧パルス+RMF)','高圧スクイーズ環境下での炭化物(M₇C₃,M₃C)析出抑止とSi/Mo添加の非線形相互作用'],refs:[{t:'Effect of Cooling Rate on Thin-Walled Ductile Iron Castings',u:'https://link.springer.com/article/10.1007/s11665-012-0233-0',v:'ok'},{t:'Influence of Cooling Rate on Si–Mo Ductile Iron Castings',u:'https://www.mdpi.com/2075-4701/11/10/1634',v:'ok'},{t:'US7735544B2 — Electromagnetic stirring for continuous casting',u:'https://patents.google.com/patent/US7735544B2/en',v:'ok'}]},
+    {id:'L2-2',name:'核生成駆動の結晶粒微細化',sum:'AMナノ粒子生成＋多元素イノキュラント複合で異方性核生成サイト活性化(A実証)。',cross:['AM:ナノ粒子核生成'],uns:['多元素イノキュラント(Ca-Ba-RE+Bi/Co)の界面コヒーレンス活性化の定量化','薄肉(肉厚→0)での冷却速度限界の工業スケール検証が未実施'],refs:[{t:'Towards understanding grain nucleation under AM conditions',u:'https://www.sciencedirect.com/science/article/abs/pii/S1359645420303517',v:'ok'},{t:'Niobium nanoparticle grain refinement (Al-Zn-Mg-Cu, AM)',u:'https://www.sciencedirect.com/science/article/abs/pii/S0925838821048374',v:'ok'},{t:'Grain refinement of AM Nb by TiC nanoparticle doping',u:'https://www.sciencedirect.com/science/article/abs/pii/S2214860424001751',v:'ok'}]},
+    {id:'L2-3',name:'意図的多孔質アーキテクチャの維持',sum:'AMトポロジー最適化＋階層格子(A:航空/自動車)。',cross:['航空/自動車:階層格子'],uns:['鋳造での格子保持と凝固の両立'],refs:[{t:'Design and Topology Optimization of Lattice Structures (AM)',u:'https://www.researchgate.net/publication/314613885',v:'ok'},{t:'Dendrite fragmentation by massive-like δ–γ transformation in Fe–C',u:'https://www.nature.com/articles/s41467-019-11079-y',v:'ok'},{t:'Topology optimization for metal AM: trends & outlook',u:'https://www.tandfonline.com/doi/full/10.1080/17452759.2023.2181192',v:'ok'}]}
+  ],
+  L3:[
+    {id:'L3-1',name:'過渡充填ダイナミクス × 過冷却波形の同期',sum:'超音波キャビテーションで核生成制御(A同業)。(B)マイクロ流体の圧力不連続・チョクラルスキー熱衝撃パルス。',cross:['超音波キャビテーション','マイクロ流体','単結晶育成(Czochralski)'],uns:['薄肉中空での圧力パルス波面と過冷却ピークの位相ロック精度(±0.1–1ms)','キャビテーション崩壊時の動的過冷却量を予測する構成モデルの欠如'],refs:[{t:'Ultrafine Ductile/ADI by Solidification in Ultrasonic Field',u:'https://link.springer.com/article/10.1007/s40962-021-00683-8',v:'ok'},{t:'Ultrasound cavitation induced nucleation in metal solidification',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC8633372/',v:'ok'},{t:'Controllable droplet breakup in microfluidics via hydrostatic pressure',u:'https://www.sciencedirect.com/science/article/abs/pii/S0009250920303882',v:'gen'}]},
+    {id:'L3-2',name:'高圧スクイーズ鋳造下の炭化物析出抑制 × Si/Mo非線形相互作用',sum:'圧力(10–100MPa)でSi(フェライト安定)・Mo(炭化物促進)・圧力相シフトを統合。',cross:['スクイーズ鋳造(静水圧)'],uns:['M₇C₃+M₃C体積分率を最小化するFe-Si-Mo組成窓','50MPa静水圧がFe-C-Si-Mo系に与える相図シフトの定量化（=最深root）'],refs:[{t:'High-Silicon Molybdenum Ductile Iron: Metallurgy & Performance',u:'https://www.ductileironsuppliers.com/high-silicon-molybdenum-ductile-iron-metallurgy-performance-sustainability.html',v:'ok'},{t:'Microstructure & Abrasive Wear of Medium Alloy SiMo Ductile Iron',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC10934996/',v:'ok'},{t:'Effect of Mo Contents on High-Temp Wear of SiMo Ductile Iron',u:'https://link.springer.com/article/10.1007/s40962-023-01012-x',v:'ok'}]},
+    {id:'L3-3',name:'格子充填凝固 ＋ 柱状→等軸転移(CET)の温度勾配最適化',sum:'(A)冷却速度駆動のCET位置(R20)／(B)勾配・格子。',cross:['連鋳:電磁攪拌(CET)','勾配格子'],uns:['格子セルサイズ(10–500µm)と冷却速度・柱状成長の連成最適','ストラット厚公差×気孔率がデンドライト相互作用に与える影響'],refs:[{t:'Porous Metals and Metallic Foams: Current Status',u:'https://doi.org/10.1002/adem.200800241',v:'ok'},{t:'Effect of Cooling Rate on Thin-Walled Ductile Iron Castings',u:'https://doi.org/10.1007/s11665-012-0233-0',v:'ok'},{t:'Lightweight gradient lattice structures in AM',u:'https://doi.org/10.1177/1687814020916951',v:'ok'}]}
+  ],
+  bridges:[
+    {from:'射出成形 — MuCell超臨界CO₂発泡',to:'内部多孔質の制御生成',note:'圧力降下駆動の気泡核生成 → 鋳鉄内部に均一気孔(10–100µm)。核生成密度の制御変数がそのまま使える'},
+    {from:'航空/構造AM — トポロジー最適化(Altair)',to:'荷重経路に沿った格子最適化',note:'等応力線TO＋格子生成 → ロストワックス中子で24–52%軽量'},
+    {from:'生体インプラント — TPMS格子(Gyroid)',to:'荷重経路に沿った格子最適化',note:'主応力方向マッチング(気孔率50–80%・100–300MPa) → 中空コア形状の雛形'},
+    {from:'連続鋳造/鉄鋼 — 電磁攪拌(M-EMS)',to:'冷却制御・結晶粒微細化 ／ CET',note:'柱状→等軸転移(CET)誘起 → 等軸黒鉛組織。鉄の強磁性でLorentz力結合が上振れの余地'}
+  ]
+};
+const COL_LABEL={root:'根',L1:'L1（第一階層）',L2:'L2（冷却制御の深掘り）',L3:'L3（急速凝固の深掘り）'};
+document.getElementById('refined').textContent='精緻化した根：'+T.refined;
+document.getElementById('deepest').textContent=T.deepest;
+const VB={ok:'✓実在',gen:'◯生成',warn:'⚠要確認'};
+function refHtml(r){ const v='<span class="vb '+(r.v||'ok')+'">'+(VB[r.v]||'')+'</span>'; return r.u?('<div class="ref"><a href="'+r.u+'" target="_blank" rel="noopener">'+r.t+'</a>'+v+'</div>'):('<div class="ref">'+r.t+v+'</div>'); }
+function nodeEl(n,level){
+  const spine=T.pick[level]===n.id, deepest=n.id===T.pick.L3;
+  const d=document.createElement('div');
+  d.className='node'+(spine?' spine':'')+(deepest?' deepestnode':'')+(spine?' open':'');
+  d.dataset.id=n.id;
+  const tag=deepest?'<span class="tag root">🎯最深root</span>':(spine?'<span class="tag spine">採択</span>':'');
+  const nc=(n.cross||[]).length, uc=(n.uns||[]).length;
+  const cChip=uc>0?('<span class="schip c">🔴未解決 C:'+uc+'</span>'):('<span class="schip c0">✅未解決なし</span>');
+  d.innerHTML='<div class="nh"><div class="nm">'+n.name+'</div>'+tag+'<span class="caret">▶</span></div>'
+    +'<div class="statusrow"><span class="schip a">✅既知 A</span><span class="schip b">★移植 B:'+nc+'</span>'+cChip+'</div>'
+    +'<div class="body">'
+      +'<div class="blk now"><div class="bl">📋 現状（既知Aと移植Bの混在）</div>'+(n.sum||'')+'</div>'
+      +(nc?'<div class="blk b"><div class="bl">★ 異業種で解ける（B・移植候補）</div>'+(n.cross||[]).map(c=>'<span class="xchip2">'+c+'</span>').join('')+'</div>':'')
+      +(uc?'<div class="blk c"><div class="bl">🔴 未解決（C）</div>'+(n.uns||[]).map(u=>'<div class="it">・'+u+'</div>').join('')+'</div>':'')
+      +'<div class="blk refs"><div class="bl">📚 参考文献・特許</div>'+(n.refs||[]).map(refHtml).join('')+'</div>'
+    +'</div>';
+  d.querySelector('.nh').addEventListener('click',()=>{d.classList.toggle('open');scheduleDraw();});
+  return d;
+}
+const cols=document.getElementById('cols');
+function colEl(level,nodes){ const c=document.createElement('div');c.className='col col-'+level;c.innerHTML='<div class="colhead">'+COL_LABEL[level]+'</div>';
+  if(level==='root'){const r=document.createElement('div');r.className='rootnode';r.dataset.id='root';r.innerHTML='鋳鉄部品の軽量化<small>薄肉×中空×高強度</small>';c.appendChild(r);return c;}
+  nodes.forEach(n=>c.appendChild(nodeEl(n,level)));return c; }
+cols.appendChild(colEl('root'));cols.appendChild(colEl('L1',T.L1));cols.appendChild(colEl('L2',T.L2));cols.appendChild(colEl('L3',T.L3));
+const bz=document.getElementById('bridges');
+T.bridges.forEach(b=>{const e=document.createElement('div');e.className='bridge';e.innerHTML='<span class="bfrom">'+b.from+'</span><span class="barrow">→</span><span class="bto">'+b.to+'</span><span class="bnote">'+b.note+'</span>';bz.appendChild(e);});
+function rectOf(id){const el=document.querySelector('[data-id="'+id+'"]');return el?el.getBoundingClientRect():null;}
+function drawEdges(){
+  const svg=document.getElementById('edges'),content=document.querySelector('.hcontent');
+  svg.setAttribute('width',0);svg.setAttribute('height',0);
+  const W=content.scrollWidth,H=content.scrollHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  const sr=svg.getBoundingClientRect(),ox=sr.left,oy=sr.top;
+  const edge=(a,b,col,w,op)=>{if(!a||!b)return'';const x1=a.right-ox,y1=a.top+a.height/2-oy,x2=b.left-ox,y2=b.top+b.height/2-oy,mx=(x1+x2)/2;return '<path d="M '+x1+' '+y1+' C '+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" opacity="'+(op||0.8)+'"/>';};
+  let p='';const root=rectOf('root'),p1=rectOf(T.pick.L1),p2=rectOf(T.pick.L2);
+  T.L1.forEach(n=>{const sp=n.id===T.pick.L1;p+=edge(root,rectOf(n.id),sp?'#dcae3c':'#b9c6d6',sp?3:1.4,sp?0.95:0.6);});
+  T.L2.forEach(n=>{const sp=n.id===T.pick.L2;p+=edge(p1,rectOf(n.id),sp?'#dcae3c':'#90caf9',sp?3:1.4,sp?0.95:0.6);});
+  T.L3.forEach(n=>{const sp=n.id===T.pick.L3;p+=edge(p2,rectOf(n.id),sp?'#dcae3c':'#a5d6a7',sp?3:1.4,sp?0.95:0.6);});
+  svg.innerHTML=p;
+}
+let raf=null;function scheduleDraw(){if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>requestAnimationFrame(drawEdges));}
+document.getElementById('expAll').addEventListener('click',()=>{document.querySelectorAll('.node').forEach(n=>n.classList.add('open'));scheduleDraw();});
+document.getElementById('colAll').addEventListener('click',()=>{document.querySelectorAll('.node').forEach(n=>{if(!n.classList.contains('spine'))n.classList.remove('open');});scheduleDraw();});
+document.querySelector('.hscroll').addEventListener('scroll',scheduleDraw);
+window.addEventListener('resize',scheduleDraw);
+scheduleDraw();
+</script>
+</body>
+</html>
